@@ -1,0 +1,23 @@
+Configuration:
+  name: default
+  Properties:
+    Property:
+      name: log_pattern
+      value: "%d{dd-MM-yyyy HH:mm:ss.SSS} %5p ${hostName} --- [%15.15t] %-40.40c{1.} : %m%n%ex"
+  Appenders:
+    Console:
+      name: console_appender
+      target: SYSTEM_OUT
+      PatternLayout:
+        pattern: ${log_pattern}
+  Loggers:
+    Logger:
+      - name: debug_logger
+        level: debug
+        additivity: false
+        AppenderRef:
+          - ref: console_appender
+    Root:
+      level: info
+      AppenderRef:
+        - ref: console_appender
