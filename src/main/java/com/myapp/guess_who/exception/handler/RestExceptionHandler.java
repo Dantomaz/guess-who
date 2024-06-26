@@ -1,7 +1,7 @@
-package com.myapp.guess_who.utils.exception;
+package com.myapp.guess_who.exception.handler;
 
-import com.myapp.guess_who.utils.response.ProblemDetailCreator;
-import com.myapp.guess_who.utils.response.ProblemTitle;
+import com.myapp.guess_who.exception.response.ProblemDetailCreator;
+import com.myapp.guess_who.exception.response.ProblemTitle;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -11,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -22,7 +24,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+@ControllerAdvice
+public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
@@ -48,6 +51,28 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             HttpStatus.BAD_REQUEST,
             exception.getMessage(),
             ProblemTitle.BAD_REQUEST,
+            request.getRequest().getRequestURI()
+        );
+    }
+
+    @ExceptionHandler({HttpServerErrorException.InternalServerError.class})
+    protected ResponseEntity<Void> handleInternalServerError(HttpServerErrorException.InternalServerError exception, ServletWebRequest request) {
+        log.debug(exception.getMessage());
+        return ProblemDetailCreator.getResponseEntity(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            exception.getMessage(),
+            ProblemTitle.INTERNAL_SERVER_ERROR,
+            request.getRequest().getRequestURI()
+        );
+    }
+
+    @ExceptionHandler({NumberFormatException.class})
+    protected ResponseEntity<Void> handleNumberFormat(NumberFormatException exception, ServletWebRequest request) {
+        log.debug(exception.getMessage());
+        return ProblemDetailCreator.getResponseEntity(
+            HttpStatus.UNPROCESSABLE_ENTITY,
+            exception.getMessage(),
+            ProblemTitle.NUMBER_FORMAT,
             request.getRequest().getRequestURI()
         );
     }

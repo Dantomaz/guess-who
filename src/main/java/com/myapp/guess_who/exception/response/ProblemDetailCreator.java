@@ -1,4 +1,4 @@
-package com.myapp.guess_who.utils.response;
+package com.myapp.guess_who.exception.response;
 
 import lombok.experimental.UtilityClass;
 import org.springframework.http.HttpStatus;
@@ -14,6 +14,7 @@ public class ProblemDetailCreator {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
         problemDetail.setTitle(title.getName());
         problemDetail.setInstance(URI.create(instance));
+        problemDetail.setProperty("error", true);
         return problemDetail;
     }
 
