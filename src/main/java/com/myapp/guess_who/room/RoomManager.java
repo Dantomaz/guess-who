@@ -40,8 +40,13 @@ public class RoomManager {
         return room.getPlayers().isEmpty() ? removeRoom(room.getId()) : room.chooseNewHost();
     }
 
-    public void updateRoom(Room room) {
+    public Room updateRoom(Room room) {
         rooms.put(room.getId(), room);
+        return room;
+    }
+
+    public Room updatePlayer(UUID roomId, Player player) {
+        return rooms.get(roomId).updatePlayer(player);
     }
 
     private void validatePlayer(Player player) {
@@ -50,13 +55,13 @@ public class RoomManager {
         }
 
         if (StringUtils.isBlank(player.getId().toString())) {
-            throw new IllegalArgumentException("Incorrect player id (%s)".formatted(player.getId()));
+            throw new IllegalArgumentException("Incorrect player ID (%s)".formatted(player.getId()));
         }
     }
 
     private void validateRoomId(UUID roomId) {
         if (StringUtils.isBlank(roomId.toString()) || !rooms.containsKey(roomId)) {
-            throw new IllegalArgumentException("Incorrect room id (%s)".formatted(roomId));
+            throw new IllegalArgumentException("Incorrect room ID (%s)".formatted(roomId));
         }
     }
 }

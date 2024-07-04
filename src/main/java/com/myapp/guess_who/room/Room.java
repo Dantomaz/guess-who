@@ -6,9 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
@@ -19,31 +18,37 @@ import java.util.UUID;
 public class Room {
 
     private UUID id;
-    private List<Player> players;
+    private Map<UUID, Player> players;
     private Room.Status status;
 
     public static Room create(Player host) {
-        return Room.builder().id(UUID.randomUUID()).players(new ArrayList<>(Collections.singletonList(host))).status(Room.Status.NEW).build();
+        return Room.builder().id(UUID.randomUUID()).players(new HashMap<>(Map.of(host.getId(), host))).status(Room.Status.NEW).build();
     }
 
     public Room addPlayer(Player player) {
-        players.add(player);
+        players.put(player.getId(), player);
         return this;
     }
 
     public Room removePlayer(Player player) {
-        players.remove(player);
+        players.remove(player.getId());
+        return this;
+    }
+
+    public Room updatePlayer(Player player) {
+        players.put(player.getId(), player);
         return this;
     }
 
     public Room chooseNewHost() {
-        int index = chooseRandomPlayer();
-        players.get(index).setHost(true);
+        UUID randomId = chooseRandomPlayerId();
+        players.get(randomId).setHost(true);
         return this;
     }
 
-    private int chooseRandomPlayer() {
-        return new Random().nextInt(players.size());
+    private UUID chooseRandomPlayerId() {
+        int randomIndex = new Random().nextInt(players.size());
+        return players.keySet().stream().toList().get(randomIndex);
     }
 
     public enum Status {

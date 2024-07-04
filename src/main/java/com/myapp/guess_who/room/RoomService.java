@@ -28,7 +28,11 @@ public class RoomService {
         return roomManager.removePlayer(player, roomId);
     }
 
-    public void updateRoom(Room room) {
-        roomManager.updateRoom(room);
+    public Room updateRoom(Room room) {
+        return roomManager.updateRoom(room);
+    }
+
+    public Room updatePlayer(UUID roomId, Player player) {
+        return roomManager.updatePlayer(roomId, player);
     }
 }

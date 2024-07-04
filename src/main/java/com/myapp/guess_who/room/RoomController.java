@@ -28,7 +28,7 @@ public class RoomController {
 
     private final Map<UUID, Integer> counters = new HashMap<>();
 
-    @PostMapping("/room/create")
+    @PostMapping("/room")
     public ResponseEntity<Room> createRoom(@RequestBody Player host) {
         return ResponseEntity.ok(roomService.createRoom(host));
     }
@@ -47,6 +47,18 @@ public class RoomController {
             messagingTemplate.convertAndSend("/topic/room/%s".formatted(roomId), room);
         }
         return ResponseEntity.ok(room);
+    }
+
+    @MessageMapping("/room/{id}")
+    @SendTo("/topic/room/{id}")
+    public Room updateRoom(Room room) {
+        return roomService.updateRoom(room);
+    }
+
+    @MessageMapping("/room/{roomId}/player/{playerId}")
+    @SendTo("/topic/room/{roomId}")
+    public Room updatePlayer(@DestinationVariable("roomId") UUID roomId, Player player) {
+        return roomService.updatePlayer(roomId, player);
     }
 
     @MessageMapping("/room/{id}/counter")
