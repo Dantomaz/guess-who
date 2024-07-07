@@ -1,5 +1,6 @@
 package com.myapp.guess_who.room;
 
+import com.github.fge.jsonpatch.JsonPatch;
 import com.myapp.guess_who.player.Player;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,47 +24,30 @@ import java.util.UUID;
 @Controller
 public class RoomController {
 
-    private final RoomService roomService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final RoomManager roomManager;
 
     private final Map<UUID, Integer> counters = new HashMap<>();
 
     @PostMapping("/room")
     public ResponseEntity<Room> createRoom(@RequestBody Player host) {
-        return ResponseEntity.ok(roomService.createRoom(host));
+        return ResponseEntity.ok(roomManager.createRoom(host));
     }
 
-    @PatchMapping("/room/{id}/join")
-    public ResponseEntity<Room> joinRoom(@PathVariable("id") UUID roomId, @RequestBody Player player) {
-        Room room = roomService.joinRoom(player, roomId);
+    @PatchMapping("/room/{roomId}")
+    public ResponseEntity<Void> updateRoom(
+        @PathVariable("roomId") UUID roomId,
+        @RequestBody JsonPatch jsonPatch
+    ) {
+        roomManager.updateRoom(roomId, jsonPatch);
+        Room room = roomManager.getRoom(roomId);
         messagingTemplate.convertAndSend("/topic/room/%s".formatted(roomId), room);
-        return ResponseEntity.ok(room);
+        return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/room/{id}/leave")
-    public ResponseEntity<Room> leaveRoom(@PathVariable("id") UUID roomId, @RequestBody Player player) {
-        Room room = roomService.leaveRoom(player, roomId);
-        if (room != null) {
-            messagingTemplate.convertAndSend("/topic/room/%s".formatted(roomId), room);
-        }
-        return ResponseEntity.ok(room);
-    }
-
-    @MessageMapping("/room/{id}")
-    @SendTo("/topic/room/{id}")
-    public Room updateRoom(Room room) {
-        return roomService.updateRoom(room);
-    }
-
-    @MessageMapping("/room/{roomId}/player/{playerId}")
-    @SendTo("/topic/room/{roomId}")
-    public Room updatePlayer(@DestinationVariable("roomId") UUID roomId, Player player) {
-        return roomService.updatePlayer(roomId, player);
-    }
-
-    @MessageMapping("/room/{id}/counter")
-    @SendTo("/topic/room/{id}/counter")
-    public int sendMessage(@DestinationVariable("id") UUID roomId, int count) {
+    @MessageMapping("/room/{roomId}/counter")
+    @SendTo("/topic/room/{roomId}/counter")
+    public int sendMessage(@DestinationVariable("roomId") UUID roomId, int count) {
         int newCount = counters.containsKey(roomId) ? counters.get(roomId) + count : count;
         counters.put(roomId, newCount);
         return newCount;

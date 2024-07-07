@@ -1,6 +1,8 @@
 package com.myapp.guess_who.room;
 
+import com.github.fge.jsonpatch.JsonPatch;
 import com.myapp.guess_who.player.Player;
+import com.myapp.guess_who.utils.JsonPatcher;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -14,48 +16,66 @@ import java.util.UUID;
 public class RoomManager {
 
     private final Map<UUID, Room> rooms = new HashMap<>();
+    private final JsonPatcher jsonPatcher;
 
     public Room createRoom(Player host) {
         validatePlayer(host);
+
+        host.setHost(true);
         Room newRoom = Room.create(host);
         rooms.put(newRoom.getId(), newRoom);
         return newRoom;
     }
 
-    public Room removeRoom(UUID roomId) {
-        rooms.remove(roomId);
-        return null;
-    }
-
-    public Room addPlayer(Player player, UUID roomId) {
+    public void addPlayer(UUID roomId, Player player) {
         validatePlayer(player);
         validateRoomId(roomId);
-        return rooms.get(roomId).addPlayer(player);
+
+        player.setHost(false);
+        rooms.get(roomId).addPlayer(player);
     }
 
-    public Room removePlayer(Player player, UUID roomId) {
-        validatePlayer(player);
+    public void removePlayer(UUID roomId, UUID playerId) {
+        validatePlayerId(playerId);
         validateRoomId(roomId);
-        Room room = rooms.get(roomId).removePlayer(player);
-        return room.getPlayers().isEmpty() ? removeRoom(room.getId()) : room.chooseNewHost();
+
+        Room room = rooms.get(roomId);
+        room.removePlayer(playerId);
+        if (room.getPlayers().isEmpty()) {
+            rooms.remove(roomId);
+        } else {
+            room.chooseNewHost();
+        }
     }
 
-    public Room updateRoom(Room room) {
-        rooms.put(room.getId(), room);
-        return room;
+    public Room getRoom(UUID roomId) {
+        return rooms.get(roomId);
     }
 
-    public Room updatePlayer(UUID roomId, Player player) {
-        return rooms.get(roomId).updatePlayer(player);
+    public void updateRoom(UUID roomId, JsonPatch jsonPatch) {
+        Room room = rooms.get(roomId);
+        Room updated = jsonPatcher.patch(room, Room.class, jsonPatch);
+        updated.setId(roomId); // make sure id stays the same
+        rooms.put(roomId, updated);
+    }
+
+    public void updatePlayer(UUID roomId, UUID playerId, JsonPatch jsonPatch) {
+        Room room = rooms.get(roomId);
+        Player updatedPlayer = jsonPatcher.patch(room.getPlayer(playerId), Player.class, jsonPatch);
+        updatedPlayer.setId(playerId); // make sure id stays the same
+        room.updatePlayer(updatedPlayer);
     }
 
     private void validatePlayer(Player player) {
+        validatePlayerId(player.getId());
         if (StringUtils.isBlank(player.getName())) {
             throw new IllegalArgumentException("Incorrect player name (%s)".formatted(player.getName()));
         }
+    }
 
-        if (StringUtils.isBlank(player.getId().toString())) {
-            throw new IllegalArgumentException("Incorrect player ID (%s)".formatted(player.getId()));
+    private void validatePlayerId(UUID playerId) {
+        if (StringUtils.isBlank(playerId.toString())) {
+            throw new IllegalArgumentException("Incorrect player ID (%s)".formatted(playerId));
         }
     }
 

@@ -25,25 +25,25 @@ public class Room {
         return Room.builder().id(UUID.randomUUID()).players(new HashMap<>(Map.of(host.getId(), host))).status(Room.Status.NEW).build();
     }
 
-    public Room addPlayer(Player player) {
+    public Player getPlayer(UUID playerId) {
+        return players.get(playerId);
+    }
+
+    public void addPlayer(Player player) {
         players.put(player.getId(), player);
-        return this;
     }
 
-    public Room removePlayer(Player player) {
-        players.remove(player.getId());
-        return this;
+    public void removePlayer(UUID playerId) {
+        players.remove(playerId);
     }
 
-    public Room updatePlayer(Player player) {
+    public void updatePlayer(Player player) {
         players.put(player.getId(), player);
-        return this;
     }
 
-    public Room chooseNewHost() {
+    public void chooseNewHost() {
         UUID randomId = chooseRandomPlayerId();
         players.get(randomId).setHost(true);
-        return this;
     }
 
     private UUID chooseRandomPlayerId() {

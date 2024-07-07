@@ -1,5 +1,10 @@
 package com.myapp.guess_who.exception.handler;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.fge.jackson.jsonpointer.JsonPointerException;
+import com.github.fge.jsonpatch.JsonPatchException;
 import com.myapp.guess_who.exception.response.ProblemDetailCreator;
 import com.myapp.guess_who.exception.response.ProblemTitle;
 import lombok.extern.slf4j.Slf4j;
@@ -67,11 +72,30 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler({NumberFormatException.class})
-    protected ResponseEntity<Void> handleNumberFormat(NumberFormatException exception, ServletWebRequest request) {
+    protected ResponseEntity<Void> handleJsonMapping(NumberFormatException exception, ServletWebRequest request) {
         log.debug(exception.getMessage());
         return ProblemDetailCreator.getResponseEntity(
             HttpStatus.UNPROCESSABLE_ENTITY,
             exception.getMessage(),
+            ProblemTitle.NUMBER_FORMAT,
+            request.getRequest().getRequestURI()
+        );
+    }
+
+    @ExceptionHandler(
+        {
+            JsonPatchException.class,
+            JsonProcessingException.class,
+            JsonParseException.class,
+            JsonGenerationException.class,
+            JsonPointerException.class
+        }
+    )
+    protected ResponseEntity<Void> handleJsonMapping(Exception jsonException, ServletWebRequest request) {
+        log.debug(jsonException.getMessage());
+        return ProblemDetailCreator.getResponseEntity(
+            HttpStatus.UNPROCESSABLE_ENTITY,
+            jsonException.getMessage(),
             ProblemTitle.NUMBER_FORMAT,
             request.getRequest().getRequestURI()
         );
