@@ -44,12 +44,4 @@ public class RoomController {
         messagingTemplate.convertAndSend("/topic/room/%s".formatted(roomId), room);
         return ResponseEntity.ok().build();
     }
-
-    @MessageMapping("/room/{roomId}/counter")
-    @SendTo("/topic/room/{roomId}/counter")
-    public int sendMessage(@DestinationVariable("roomId") UUID roomId, int count) {
-        int newCount = counters.containsKey(roomId) ? counters.get(roomId) + count : count;
-        counters.put(roomId, newCount);
-        return newCount;
-    }
 }
