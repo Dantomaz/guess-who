@@ -1,6 +1,7 @@
 package com.myapp.guess_who.room;
 
 import com.github.fge.jsonpatch.JsonPatch;
+import com.myapp.guess_who.gameState.GameState;
 import com.myapp.guess_who.player.Player;
 import com.myapp.guess_who.utils.JsonPatcher;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +19,15 @@ public class RoomManager {
     private final Map<UUID, Room> rooms = new HashMap<>();
     private final JsonPatcher jsonPatcher;
 
-    public Room createRoom(Player host) {
+    public Room createRoom(Player host, GameState gameState) {
         validatePlayer(host);
 
+        Room newRoom = Room.create();
+
         host.setHost(true);
-        Room newRoom = Room.create(host);
+        newRoom.addPlayer(host);
+        newRoom.setGameState(gameState);
+
         rooms.put(newRoom.getId(), newRoom);
         return newRoom;
     }

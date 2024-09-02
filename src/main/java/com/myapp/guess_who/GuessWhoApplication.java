@@ -9,5 +9,4 @@ public class GuessWhoApplication {
     public static void main(String[] args) {
         SpringApplication.run(GuessWhoApplication.class, args);
     }
-
 }

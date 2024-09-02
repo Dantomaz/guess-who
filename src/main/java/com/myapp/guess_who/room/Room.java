@@ -1,5 +1,6 @@
 package com.myapp.guess_who.room;
 
+import com.myapp.guess_who.gameState.GameState;
 import com.myapp.guess_who.player.Player;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,10 +20,10 @@ public class Room {
 
     private UUID id;
     private Map<UUID, Player> players;
-    private Room.Status status;
+    private GameState gameState;
 
-    public static Room create(Player host) {
-        return Room.builder().id(UUID.randomUUID()).players(new HashMap<>(Map.of(host.getId(), host))).status(Room.Status.NEW).build();
+    public static Room create() {
+        return Room.builder().id(UUID.randomUUID()).players(new HashMap<>()).build();
     }
 
     public Player getPlayer(UUID playerId) {
@@ -49,11 +50,5 @@ public class Room {
     private UUID chooseRandomPlayerId() {
         int randomIndex = new Random().nextInt(players.size());
         return players.keySet().stream().toList().get(randomIndex);
-    }
-
-    public enum Status {
-        NEW,
-        IN_PROGRESS,
-        FINISHED
     }
 }
