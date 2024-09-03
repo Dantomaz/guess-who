@@ -3,6 +3,7 @@ package com.myapp.guess_who.room;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.myapp.guess_who.gameState.GameState;
 import com.myapp.guess_who.player.Player;
+import com.myapp.guess_who.player.PlayerService;
 import com.myapp.guess_who.utils.JsonPatcher;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -18,6 +19,7 @@ public class RoomManager {
 
     private final Map<UUID, Room> rooms = new HashMap<>();
     private final JsonPatcher jsonPatcher;
+    private final PlayerService playerService;
 
     public Room createRoom(Player host, GameState gameState) {
         validatePlayer(host);
@@ -49,7 +51,7 @@ public class RoomManager {
         if (room.getPlayers().isEmpty()) {
             rooms.remove(roomId);
         } else {
-            room.chooseNewHost();
+            playerService.chooseNewHost(room.getPlayers());
         }
     }
 

@@ -1,11 +1,8 @@
 package com.myapp.guess_who.gameState;
 
-import com.myapp.guess_who.room.Room;
 import com.myapp.guess_who.team.Team;
-import com.myapp.guess_who.utils.MultipartParsingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Random;
@@ -15,8 +12,6 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class GameStateService {
 
-    private final MultipartParsingService multipartParsingService;
-
     public GameState getNewGameState() {
         GameState newGameState = new GameState();
         newGameState.setStatus(GameState.Status.NEW);
@@ -25,8 +20,7 @@ public class GameStateService {
         return newGameState;
     }
 
-    public void resetGameState(Room room) {
-        GameState gameState = room.getGameState();
+    public void resetGameState(GameState gameState) {
         gameState.setStatus(GameState.Status.NEW);
         resetBoardState(gameState.getBoardRed());
         resetBoardState(gameState.getBoardBlue());
@@ -44,12 +38,7 @@ public class GameStateService {
         return randomTeam == 0 ? Team.RED : Team.BLUE;
     }
 
-    public void uploadImages(GameState gameState, List<MultipartFile> images) {
-        gameState.setImages(multipartParsingService.toBytes(images));
-        initializeCards(gameState, images.size());
-    }
-
-    private void initializeCards(GameState gameState, int size) {
+    public void initializeCards(GameState gameState, int size) {
         List<Card> cards = IntStream
             .rangeClosed(1, size)
             .mapToObj(Card::new)

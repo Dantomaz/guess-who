@@ -20,6 +20,7 @@ public class Room {
 
     private UUID id;
     private Map<UUID, Player> players;
+    private HashMap<Integer, byte[]> images;
     private GameState gameState;
 
     public static Room create() {
@@ -40,15 +41,5 @@ public class Room {
 
     public void updatePlayer(Player player) {
         players.put(player.getId(), player);
-    }
-
-    public void chooseNewHost() {
-        UUID randomId = chooseRandomPlayerId();
-        players.get(randomId).setHost(true);
-    }
-
-    private UUID chooseRandomPlayerId() {
-        int randomIndex = new Random().nextInt(players.size());
-        return players.keySet().stream().toList().get(randomIndex);
     }
 }
