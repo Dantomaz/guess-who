@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -33,7 +34,8 @@ public class PlayerController {
     public ResponseEntity<Room> joinRoom(@PathVariable("roomId") UUID roomId, @RequestBody Player player) {
         roomManager.addPlayer(roomId, player);
         Room room = roomManager.getRoom(roomId);
-        messagingTemplate.convertAndSend("/topic/room/%s".formatted(roomId), room);
+        Map<UUID, Player> players = room.getPlayers();
+        messagingTemplate.convertAndSend("/topic/room/%s/players".formatted(roomId), players);
         return ResponseEntity.ok(room);
     }
 
@@ -44,18 +46,18 @@ public class PlayerController {
         @RequestBody JsonPatch jsonPatch
     ) {
         roomManager.updatePlayer(roomId, playerId, jsonPatch);
-        Room room = roomManager.getRoom(roomId);
-        messagingTemplate.convertAndSend("/topic/room/%s".formatted(roomId), room);
+        Map<UUID, Player> players = roomManager.getRoom(roomId).getPlayers();
+        messagingTemplate.convertAndSend("/topic/room/%s/players".formatted(roomId), players);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/room/{roomId}/player/{playerId}")
-    public ResponseEntity<Room> leaveRoom(@PathVariable("roomId") UUID roomId, @PathVariable("playerId") UUID playerId) {
+    public ResponseEntity<Void> leaveRoom(@PathVariable("roomId") UUID roomId, @PathVariable("playerId") UUID playerId) {
         roomManager.removePlayer(roomId, playerId);
         Room room = roomManager.getRoom(roomId);
         if (room != null) {
-            messagingTemplate.convertAndSend("/topic/room/%s".formatted(roomId), room);
+            messagingTemplate.convertAndSend("/topic/room/%s/players".formatted(roomId), room.getPlayers());
         }
-        return ResponseEntity.ok(room);
+        return ResponseEntity.ok().build();
     }
 }
