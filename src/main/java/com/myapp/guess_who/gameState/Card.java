@@ -6,5 +6,11 @@ import lombok.Data;
 public class Card {
 
     private final int number;
-    private boolean opened = true;
+    private boolean closedByRed = true;
+    private boolean closedByBlue = true;
+
+    public void reset() {
+        closedByRed = true;
+        closedByBlue = true;
+    }
 }

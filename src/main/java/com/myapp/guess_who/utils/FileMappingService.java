@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,7 @@ import java.util.stream.IntStream;
 
 @Slf4j
 @Service
-public class MultipartParsingService {
+public class FileMappingService {
 
     public HashMap<Integer, byte[]> toBytes(List<MultipartFile> images) {
         return IntStream.range(0, images.size())
@@ -28,5 +29,15 @@ public class MultipartParsingService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public HashMap<Integer, String> toBase64(HashMap<Integer, byte[]> images) {
+        return images.entrySet().stream()
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                entry -> Base64.getEncoder().encodeToString(entry.getValue()),
+                (map1, map2) -> map1,
+                HashMap::new
+            ));
     }
 }

@@ -30,15 +30,6 @@ public class PlayerController {
         return ResponseEntity.ok(Player.createPlayer(playerName));
     }
 
-    @PostMapping("/room/{roomId}/player")
-    public ResponseEntity<Room> joinRoom(@PathVariable("roomId") UUID roomId, @RequestBody Player player) {
-        roomManager.addPlayer(roomId, player);
-        Room room = roomManager.getRoom(roomId);
-        Map<UUID, Player> players = room.getPlayers();
-        messagingTemplate.convertAndSend("/topic/room/%s/players".formatted(roomId), players);
-        return ResponseEntity.ok(room);
-    }
-
     @PatchMapping("/room/{roomId}/player/{playerId}")
     public ResponseEntity<Void> updatePlayer(
         @PathVariable("roomId") UUID roomId,
@@ -48,16 +39,6 @@ public class PlayerController {
         roomManager.updatePlayer(roomId, playerId, jsonPatch);
         Map<UUID, Player> players = roomManager.getRoom(roomId).getPlayers();
         messagingTemplate.convertAndSend("/topic/room/%s/players".formatted(roomId), players);
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/room/{roomId}/player/{playerId}")
-    public ResponseEntity<Void> leaveRoom(@PathVariable("roomId") UUID roomId, @PathVariable("playerId") UUID playerId) {
-        roomManager.removePlayer(roomId, playerId);
-        Room room = roomManager.getRoom(roomId);
-        if (room != null) {
-            messagingTemplate.convertAndSend("/topic/room/%s/players".formatted(roomId), room.getPlayers());
-        }
         return ResponseEntity.ok().build();
     }
 }

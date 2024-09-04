@@ -1,7 +1,7 @@
 package com.myapp.guess_who.room;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.myapp.guess_who.gameState.GameState;
+import com.myapp.guess_who.gameState.GameStateService;
 import com.myapp.guess_who.player.Player;
 import com.myapp.guess_who.player.PlayerService;
 import com.myapp.guess_who.utils.JsonPatcher;
@@ -20,15 +20,16 @@ public class RoomManager {
     private final Map<UUID, Room> rooms = new HashMap<>();
     private final JsonPatcher jsonPatcher;
     private final PlayerService playerService;
+    private final GameStateService gameStateService;
 
-    public Room createRoom(Player host, GameState gameState) {
+    public Room createRoom(Player host) {
         validatePlayer(host);
 
         Room newRoom = Room.create();
 
         host.setHost(true);
         newRoom.addPlayer(host);
-        newRoom.setGameState(gameState);
+        newRoom.setGameState(gameStateService.getNewGameState());
 
         rooms.put(newRoom.getId(), newRoom);
         return newRoom;
