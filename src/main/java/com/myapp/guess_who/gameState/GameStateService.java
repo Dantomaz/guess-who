@@ -25,9 +25,9 @@ public class GameStateService {
 
     public void resetGameState(GameState gameState) {
         gameState.setStatus(GameState.Status.NEW);
+        gameState.getCards().forEach(Card::reset);
         gameState.setCardNrChosenByBlue(null);
         gameState.setCardNrChosenByRed(null);
-        gameState.getCards().forEach(Card::reset);
         gameState.setVotesBlue(null);
         gameState.setVotesRed(null);
         gameState.setCurrentTurn(null);

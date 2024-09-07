@@ -20,6 +20,14 @@ public class GameStateController {
     private final RoomManager roomManager;
     private final GameStateService gameStateService;
 
+    @MessageMapping("/room/{roomId}/restartGame")
+    @SendTo("/topic/room/{roomId}/gameState")
+    public GameState restartGame(@DestinationVariable("roomId") UUID roomId) {
+        GameState gameState = roomManager.getRoom(roomId).getGameState();
+        gameStateService.resetGameState(gameState);
+        return gameState;
+    }
+
     @MessageMapping("/room/{roomId}/prepareGame")
     @SendTo("/topic/room/{roomId}/gameState")
     public GameState prepareGame(@DestinationVariable("roomId") UUID roomId) {
