@@ -52,4 +52,12 @@ public class GameStateController {
         gameStateService.startGame(gameState);
         return gameState;
     }
+
+    @MessageMapping("/room/{roomId}/toggleCard")
+    @SendTo("/topic/room/{roomId}/gameState")
+    public GameState toggleCard(@DestinationVariable("roomId") UUID roomId, @RequestBody CardCloseRequest cardCloseRequest) {
+        GameState gameState = roomManager.getRoom(roomId).getGameState();
+        gameStateService.toggleCard(gameState, cardCloseRequest.cardNumber(), cardCloseRequest.team());
+        return gameState;
+    }
 }

@@ -25,13 +25,15 @@ public class GameStateService {
 
     public void resetGameState(GameState gameState) {
         gameState.setStatus(GameState.Status.NEW);
-        gameState.getCards().forEach(Card::reset);
         gameState.setCardNrChosenByBlue(null);
         gameState.setCardNrChosenByRed(null);
         gameState.setVotesBlue(null);
         gameState.setVotesRed(null);
         gameState.setCurrentTurn(null);
         gameState.setWinner(null);
+        if (gameState.getCards() != null) {
+            gameState.getCards().forEach(Card::reset);
+        }
     }
 
     public void initializeCards(GameState gameState, int size) {
@@ -90,5 +92,13 @@ public class GameStateService {
 
         // Step 4: Pick one card at random in case of a tie
         return topCardNumbers.get(new Random().nextInt(topCardNumbers.size()));
+    }
+
+    public void toggleCard(GameState gameState, Integer cardNumber, Team team) {
+        gameState.getCards().forEach((card) -> {
+            if (card.getNumber() == cardNumber) {
+                card.toggleClose(team);
+            }
+        });
     }
 }
