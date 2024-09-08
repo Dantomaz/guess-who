@@ -67,13 +67,6 @@ public class RoomManager {
         rooms.put(roomId, updated);
     }
 
-    public void updatePlayer(UUID roomId, UUID playerId, JsonPatch jsonPatch) {
-        Room room = rooms.get(roomId);
-        Player updatedPlayer = jsonPatcher.patch(room.getPlayer(playerId), Player.class, jsonPatch);
-        updatedPlayer.setId(playerId); // make sure id stays the same
-        room.updatePlayer(updatedPlayer);
-    }
-
     private void validatePlayer(Player player) {
         validatePlayerId(player.getId());
         if (StringUtils.isBlank(player.getName())) {

@@ -1,5 +1,7 @@
 package com.myapp.guess_who.gameState;
 
+import com.myapp.guess_who.gameState.request.CardCloseRequest;
+import com.myapp.guess_who.gameState.request.VoteRequest;
 import com.myapp.guess_who.room.Room;
 import com.myapp.guess_who.room.RoomManager;
 import lombok.RequiredArgsConstructor;

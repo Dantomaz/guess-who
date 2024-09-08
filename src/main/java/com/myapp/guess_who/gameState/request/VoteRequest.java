@@ -1,4 +1,4 @@
-package com.myapp.guess_who.gameState;
+package com.myapp.guess_who.gameState.request;
 
 import java.util.UUID;
 
