@@ -44,11 +44,6 @@ public class GameStateService {
         gameState.setCards(cards);
     }
 
-    private Team chooseRandomTeam() {
-        int randomTeam = new Random().nextInt(GameState.NUMBER_OF_TEAMS);
-        return randomTeam == 0 ? Team.BLUE : Team.RED;
-    }
-
     public void prepareGame(GameState gameState) {
         gameState.setVotesBlue(new HashMap<>());
         gameState.setVotesRed(new HashMap<>());
@@ -65,7 +60,13 @@ public class GameStateService {
 
     public void startGame(GameState gameState) {
         resolveVotes(gameState);
+        gameState.setCurrentTurn(chooseRandomTeam());
         gameState.setStatus(GameState.Status.IN_PROGRESS);
+    }
+
+    private Team chooseRandomTeam() {
+        int randomTeam = new Random().nextInt(GameState.NUMBER_OF_TEAMS);
+        return randomTeam == 0 ? Team.BLUE : Team.RED;
     }
 
     private void resolveVotes(GameState gameState) {
@@ -100,5 +101,10 @@ public class GameStateService {
                 card.toggleClose(team);
             }
         });
+    }
+
+    public void nextTurn(GameState gameState) {
+        Team nextTurn = Team.RED.equals(gameState.getCurrentTurn()) ? Team.BLUE : Team.RED;
+        gameState.setCurrentTurn(nextTurn);
     }
 }

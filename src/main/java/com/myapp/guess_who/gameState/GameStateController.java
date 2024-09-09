@@ -62,4 +62,12 @@ public class GameStateController {
         gameStateService.toggleCard(gameState, cardCloseRequest.cardNumber(), cardCloseRequest.team());
         return gameState;
     }
+
+    @MessageMapping("/room/{roomId}/endTurn")
+    @SendTo("/topic/room/{roomId}/gameState")
+    public GameState endTurn(@DestinationVariable("roomId") UUID roomId) {
+        GameState gameState = roomManager.getRoom(roomId).getGameState();
+        gameStateService.nextTurn(gameState);
+        return gameState;
+    }
 }
