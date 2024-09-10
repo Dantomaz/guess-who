@@ -70,4 +70,12 @@ public class GameStateController {
         gameStateService.nextTurn(gameState);
         return gameState;
     }
+
+    @MessageMapping("/room/{roomId}/guessCard")
+    @SendTo("/topic/room/{roomId}/gameState")
+    public GameState guessCard(@DestinationVariable("roomId") UUID roomId, int cardNumber) {
+        GameState gameState = roomManager.getRoom(roomId).getGameState();
+        gameStateService.guessCard(gameState, cardNumber);
+        return gameState;
+    }
 }

@@ -107,4 +107,25 @@ public class GameStateService {
         Team nextTurn = Team.RED.equals(gameState.getCurrentTurn()) ? Team.BLUE : Team.RED;
         gameState.setCurrentTurn(nextTurn);
     }
+
+    public void guessCard(GameState gameState, int guessedCardNumber) {
+        Team currentTeam = gameState.getCurrentTurn();
+        int opponentsCardNumber = Team.RED.equals(currentTeam) ? gameState.getCardNrChosenByBlue() : gameState.getCardNrChosenByRed();
+        if (guessedCardNumber == opponentsCardNumber) {
+            finishGame(gameState, currentTeam);
+        } else {
+            toggleCard(gameState, guessedCardNumber, currentTeam);
+            nextTurn(gameState);
+        }
+    }
+
+    private void finishGame(GameState gameState, Team winner) {
+        gameState.setWinner(winner);
+        gameState.getCards().forEach((card) -> {
+            if (card.getNumber() == gameState.getCardNrChosenByBlue() || card.getNumber() == gameState.getCardNrChosenByRed()) {
+                card.reset();
+            }
+        });
+        gameState.setStatus(GameState.Status.FINISHED);
+    }
 }
