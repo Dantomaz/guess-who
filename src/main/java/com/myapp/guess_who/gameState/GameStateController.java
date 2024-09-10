@@ -1,6 +1,6 @@
 package com.myapp.guess_who.gameState;
 
-import com.myapp.guess_who.gameState.request.CardCloseRequest;
+import com.myapp.guess_who.gameState.request.ToggleCardRequest;
 import com.myapp.guess_who.gameState.request.VoteRequest;
 import com.myapp.guess_who.room.Room;
 import com.myapp.guess_who.room.RoomManager;
@@ -57,9 +57,9 @@ public class GameStateController {
 
     @MessageMapping("/room/{roomId}/toggleCard")
     @SendTo("/topic/room/{roomId}/gameState")
-    public GameState toggleCard(@DestinationVariable("roomId") UUID roomId, @RequestBody CardCloseRequest cardCloseRequest) {
+    public GameState toggleCard(@DestinationVariable("roomId") UUID roomId, @RequestBody ToggleCardRequest toggleCardRequest) {
         GameState gameState = roomManager.getRoom(roomId).getGameState();
-        gameStateService.toggleCard(gameState, cardCloseRequest.cardNumber(), cardCloseRequest.team());
+        gameStateService.toggleCard(gameState, toggleCardRequest.cardNumber(), toggleCardRequest.team());
         return gameState;
     }
 
