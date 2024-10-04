@@ -3,6 +3,7 @@ package com.myapp.guess_who.player;
 import com.myapp.guess_who.player.request.NewNameRequest;
 import com.myapp.guess_who.room.RoomManager;
 import com.myapp.guess_who.team.Team;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +29,10 @@ public class PlayerController {
     private final PlayerService playerService;
 
     @PostMapping("/player/{playerName}")
-    public ResponseEntity<Player> createPlayer(@PathVariable("playerName") String playerName) {
-        return ResponseEntity.ok(Player.createPlayer(playerName));
+    public ResponseEntity<Player> createPlayer(@PathVariable("playerName") String playerName, HttpSession httpSession) {
+        Player player = Player.createPlayer(playerName);
+        httpSession.setAttribute("playerId", player.getId());
+        return ResponseEntity.ok(player);
     }
 
     @MessageMapping("/room/{roomId}/player/{playerId}/changeName")

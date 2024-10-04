@@ -26,5 +26,20 @@ spring:
       enabled: true
       max-file-size: -1
       max-request-size: -1
+  session:
+    store-type: redis
+    timeout: 15m
+  redis:
+    port: 6379
+  websocket:
+    message-size-limit: 10MB
+    buffer-size-limit: 10MB
 server:
   port: 8080
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        secure: false
+        same-site: Lax
+        path: /
