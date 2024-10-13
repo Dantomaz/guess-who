@@ -76,7 +76,12 @@ public class RoomController {
         if (httpSession.getAttribute("roomId") == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+
         Room room = roomManager.getRoom((UUID) httpSession.getAttribute("roomId"));
+        if (room == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
         Player player = room.getPlayer((UUID) httpSession.getAttribute("playerId"));
         return ResponseEntity.ok(new ReconnectResponse(player, room));
     }
