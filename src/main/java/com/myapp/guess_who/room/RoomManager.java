@@ -5,8 +5,9 @@ import com.myapp.guess_who.gameState.GameStateService;
 import com.myapp.guess_who.player.Player;
 import com.myapp.guess_who.player.PlayerService;
 import com.myapp.guess_who.utils.JsonPatcher;
+import com.myapp.guess_who.validator.PlayerValidator;
+import com.myapp.guess_who.validator.RoomValidator;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -21,9 +22,11 @@ public class RoomManager {
     private final JsonPatcher jsonPatcher;
     private final PlayerService playerService;
     private final GameStateService gameStateService;
+    private final RoomValidator roomValidator;
+    private final PlayerValidator playerValidator;
 
     public Room createRoom(Player host) {
-        validatePlayer(host);
+        playerValidator.validatePlayer(host);
 
         Room newRoom = Room.create();
 
@@ -36,16 +39,16 @@ public class RoomManager {
     }
 
     public void addPlayer(UUID roomId, Player player) {
-        validatePlayer(player);
-        validateRoomId(roomId);
+        playerValidator.validatePlayer(player);
+        roomValidator.validateRoom(roomId, rooms);
 
         player.setHost(false);
         rooms.get(roomId).addPlayer(player);
     }
 
     public void removePlayer(UUID roomId, UUID playerId) {
-        validatePlayerId(playerId);
-        validateRoomId(roomId);
+        playerValidator.validatePlayerId(playerId);
+        roomValidator.validateRoomId(roomId, rooms);
 
         Room room = rooms.get(roomId);
         room.removePlayer(playerId);
@@ -65,24 +68,5 @@ public class RoomManager {
         Room updated = jsonPatcher.patch(room, Room.class, jsonPatch);
         updated.setId(roomId); // make sure id stays the same
         rooms.put(roomId, updated);
-    }
-
-    private void validatePlayer(Player player) {
-        validatePlayerId(player.getId());
-        if (StringUtils.isBlank(player.getName())) {
-            throw new IllegalArgumentException("Incorrect player name (%s)".formatted(player.getName()));
-        }
-    }
-
-    private void validatePlayerId(UUID playerId) {
-        if (StringUtils.isBlank(playerId.toString())) {
-            throw new IllegalArgumentException("Incorrect player ID (%s)".formatted(playerId));
-        }
-    }
-
-    private void validateRoomId(UUID roomId) {
-        if (StringUtils.isBlank(roomId.toString()) || !rooms.containsKey(roomId)) {
-            throw new IllegalArgumentException("Incorrect room ID (%s)".formatted(roomId));
-        }
     }
 }

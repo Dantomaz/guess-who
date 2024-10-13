@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.fge.jackson.jsonpointer.JsonPointerException;
 import com.github.fge.jsonpatch.JsonPatchException;
+import com.myapp.guess_who.exception.customException.GameAlreadyInProgressException;
+import com.myapp.guess_who.exception.customException.NoSuchRoomException;
 import com.myapp.guess_who.exception.response.ProblemDetailCreator;
 import com.myapp.guess_who.exception.response.ProblemTitle;
 import lombok.extern.slf4j.Slf4j;
@@ -49,8 +51,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.of(problemDetail).build();
     }
 
-    @ExceptionHandler({IllegalArgumentException.class})
-    protected ResponseEntity<Void> handleIllegalArgument(IllegalArgumentException exception, ServletWebRequest request) {
+    @ExceptionHandler({IllegalArgumentException.class, GameAlreadyInProgressException.class, NoSuchRoomException.class})
+    protected ResponseEntity<Void> handleIllegalArgument(Exception exception, ServletWebRequest request) {
         log.debug(exception.getMessage());
         return ProblemDetailCreator.getResponseEntity(
             HttpStatus.BAD_REQUEST,
