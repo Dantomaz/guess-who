@@ -20,6 +20,6 @@ public class Player {
     private Team team;
 
     public static Player createPlayer(String name) {
-        return Player.builder().id(UUID.randomUUID()).name(name).host(false).team(Team.SPECTATORS).build();
+        return Player.builder().id(UUID.randomUUID()).name(name).host(false).team(Team.NONE).build();
     }
 }
