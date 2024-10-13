@@ -3,8 +3,6 @@ package com.myapp.guess_who.exception.handler;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.github.fge.jackson.jsonpointer.JsonPointerException;
-import com.github.fge.jsonpatch.JsonPatchException;
 import com.myapp.guess_who.exception.customException.GameAlreadyInProgressException;
 import com.myapp.guess_who.exception.customException.NoSuchRoomException;
 import com.myapp.guess_who.exception.response.ProblemDetailCreator;
@@ -74,7 +72,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler({NumberFormatException.class})
-    protected ResponseEntity<Void> handleJsonMapping(NumberFormatException exception, ServletWebRequest request) {
+    protected ResponseEntity<Void> handleWrongNumberFormat(NumberFormatException exception, ServletWebRequest request) {
         log.debug(exception.getMessage());
         return ProblemDetailCreator.getResponseEntity(
             HttpStatus.UNPROCESSABLE_ENTITY,
@@ -84,15 +82,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         );
     }
 
-    @ExceptionHandler(
-        {
-            JsonPatchException.class,
-            JsonProcessingException.class,
-            JsonParseException.class,
-            JsonGenerationException.class,
-            JsonPointerException.class
-        }
-    )
+    @ExceptionHandler({JsonProcessingException.class, JsonParseException.class, JsonGenerationException.class,})
     protected ResponseEntity<Void> handleJsonMapping(Exception jsonException, ServletWebRequest request) {
         log.debug(jsonException.getMessage());
         return ProblemDetailCreator.getResponseEntity(

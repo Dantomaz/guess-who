@@ -1,6 +1,5 @@
 package com.myapp.guess_who.room;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import com.myapp.guess_who.player.Player;
 import com.myapp.guess_who.room.response.ReconnectResponse;
 import com.myapp.guess_who.utils.FileMappingService;
@@ -12,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,17 +45,6 @@ public class RoomController {
         httpSession.setAttribute("roomId", room.getId());
         messagingTemplate.convertAndSend("/topic/room/%s/players".formatted(roomId), room.getPlayers());
         return ResponseEntity.ok(room);
-    }
-
-    @PatchMapping("/room/{roomId}")
-    public ResponseEntity<Void> updateRoom(
-        @PathVariable("roomId") UUID roomId,
-        @RequestBody JsonPatch jsonPatch
-    ) {
-        roomManager.updateRoom(roomId, jsonPatch);
-        Room room = roomManager.getRoom(roomId);
-        messagingTemplate.convertAndSend("/topic/room/%s".formatted(roomId), room);
-        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/room/{roomId}/player/{playerId}")

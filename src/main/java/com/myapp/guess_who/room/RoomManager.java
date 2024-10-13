@@ -1,10 +1,8 @@
 package com.myapp.guess_who.room;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import com.myapp.guess_who.gameState.GameStateService;
 import com.myapp.guess_who.player.Player;
 import com.myapp.guess_who.player.PlayerService;
-import com.myapp.guess_who.utils.JsonPatcher;
 import com.myapp.guess_who.validator.PlayerValidator;
 import com.myapp.guess_who.validator.RoomValidator;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +17,6 @@ import java.util.UUID;
 public class RoomManager {
 
     private final Map<UUID, Room> rooms = new HashMap<>();
-    private final JsonPatcher jsonPatcher;
     private final PlayerService playerService;
     private final GameStateService gameStateService;
     private final RoomValidator roomValidator;
@@ -61,12 +58,5 @@ public class RoomManager {
 
     public Room getRoom(UUID roomId) {
         return rooms.get(roomId);
-    }
-
-    public void updateRoom(UUID roomId, JsonPatch jsonPatch) {
-        Room room = rooms.get(roomId);
-        Room updated = jsonPatcher.patch(room, Room.class, jsonPatch);
-        updated.setId(roomId); // make sure id stays the same
-        rooms.put(roomId, updated);
     }
 }
