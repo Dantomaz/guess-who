@@ -34,6 +34,7 @@ public class GameStateController {
     @SendTo("/topic/room/{roomId}/gameState")
     public GameState prepareGame(@DestinationVariable("roomId") UUID roomId) {
         GameState gameState = roomManager.getRoom(roomId).getGameState();
+        gameStateService.initializeCards(gameState, roomManager.getRoom(roomId).getImages().size());
         gameStateService.prepareGame(gameState);
         return gameState;
     }

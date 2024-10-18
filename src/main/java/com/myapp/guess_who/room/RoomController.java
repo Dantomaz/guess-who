@@ -28,7 +28,6 @@ public class RoomController {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final RoomManager roomManager;
-    private final RoomService roomService;
     private final FileMappingService fileMappingService;
 
     @PostMapping("/room")
@@ -49,12 +48,11 @@ public class RoomController {
 
     @DeleteMapping("/room/{roomId}/player/{playerId}")
     public ResponseEntity<Void> leaveRoom(@PathVariable("roomId") UUID roomId, @PathVariable("playerId") UUID playerId, HttpSession httpSession) {
-        roomManager.removePlayer(roomId, playerId);
         Room room = roomManager.getRoom(roomId);
+        httpSession.invalidate();
         if (room != null) {
             messagingTemplate.convertAndSend("/topic/room/%s/players".formatted(roomId), room.getPlayers());
         }
-        httpSession.invalidate();
         return ResponseEntity.ok().build();
     }
 
@@ -79,7 +77,8 @@ public class RoomController {
         @RequestParam("images") List<MultipartFile> images
     ) {
         Room room = roomManager.getRoom(roomId);
-        HashMap<Integer, String> uploadedImages = fileMappingService.toBase64(roomService.uploadImages(room, images));
+        HashMap<Integer, String> uploadedImages = fileMappingService.storeImages(roomId, images);
+        room.setImages(uploadedImages);
         messagingTemplate.convertAndSend("/topic/room/%s/images".formatted(roomId), uploadedImages);
         return ResponseEntity.ok(uploadedImages);
     }

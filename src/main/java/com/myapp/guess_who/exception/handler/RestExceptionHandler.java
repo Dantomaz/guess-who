@@ -23,6 +23,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -60,7 +61,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         );
     }
 
-    @ExceptionHandler({HttpServerErrorException.InternalServerError.class})
+    @ExceptionHandler({HttpServerErrorException.InternalServerError.class, IOException.class})
     protected ResponseEntity<Void> handleInternalServerError(HttpServerErrorException.InternalServerError exception, ServletWebRequest request) {
         log.debug(exception.getMessage());
         return ProblemDetailCreator.getResponseEntity(

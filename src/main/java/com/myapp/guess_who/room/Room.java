@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 
 @Data
@@ -20,7 +19,7 @@ public class Room {
 
     private UUID id;
     private Map<UUID, Player> players;
-    private HashMap<Integer, byte[]> images;
+    private HashMap<Integer, String> images;
     private GameState gameState;
 
     public static Room create() {
@@ -41,5 +40,9 @@ public class Room {
 
     public void updatePlayer(Player player) {
         players.put(player.getId(), player);
+    }
+
+    public boolean hasNoPlayers() {
+        return players.isEmpty();
     }
 }
