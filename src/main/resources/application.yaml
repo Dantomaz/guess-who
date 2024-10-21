@@ -26,9 +26,9 @@ spring:
       enabled: true
       max-file-size: -1
       max-request-size: -1
-  session:
-    store-type: redis
-    timeout: 15m
+  docker:
+    compose:
+      lifecycle-management: start_and_stop
   redis:
     port: 6379
   websocket:
