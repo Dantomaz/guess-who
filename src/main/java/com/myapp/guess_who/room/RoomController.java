@@ -72,11 +72,12 @@ public class RoomController {
 
     @PostMapping("/room/reconnect")
     public ResponseEntity<ReconnectResponse> reconnect(HttpSession httpSession) {
-        if (httpSession.getAttribute("roomId") == null) {
+        UUID roomId = (UUID) httpSession.getAttribute("roomId");
+        if (roomId == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
-        Room room = roomManager.getRoom((UUID) httpSession.getAttribute("roomId"));
+        Room room = roomManager.getRoom(roomId);
         if (room == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }

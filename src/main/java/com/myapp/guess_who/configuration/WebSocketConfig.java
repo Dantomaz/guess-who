@@ -8,8 +8,8 @@ import org.springframework.session.web.socket.config.annotation.AbstractSessionW
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 
-@Configuration
 @EnableWebSocketMessageBroker
+@Configuration
 public class WebSocketConfig extends AbstractSessionWebSocketMessageBrokerConfigurer<Session> {
 
     @Value("${custom.client.url}")

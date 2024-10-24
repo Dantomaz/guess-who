@@ -45,6 +45,10 @@ public class RoomManager {
         return newRoom;
     }
 
+    public boolean roomExists(UUID roomId) {
+        return rooms.containsKey(roomId);
+    }
+
     public void closeRoom(UUID roomId) {
         rooms.remove(roomId);
     }

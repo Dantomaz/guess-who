@@ -24,6 +24,8 @@ spring:
     buffer-size-limit: 10MB
   session:
     timeout: 2h # make session timeout way to long for now, for as long as http and websocket sessions are not properly integrated
+    redis:
+      repository-type: indexed # needed to be able to listen for redis session events
 server:
   port: 8080
   servlet:
