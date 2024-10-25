@@ -49,7 +49,7 @@ public class RoomController {
     @DeleteMapping("/room/{roomId}/player/{playerId}")
     public ResponseEntity<Void> leaveRoom(@PathVariable("roomId") UUID roomId, @PathVariable("playerId") UUID playerId, HttpSession httpSession) {
         Room room = roomManager.getRoom(roomId);
-        httpSession.invalidate();
+        roomManager.removePlayer(roomId, playerId);
         if (room != null) {
             messagingTemplate.convertAndSend("/topic/room/%s/players".formatted(roomId), room.getPlayers());
         }
