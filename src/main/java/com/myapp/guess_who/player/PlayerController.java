@@ -1,20 +1,19 @@
 package com.myapp.guess_who.player;
 
-import com.myapp.guess_who.player.request.NewNameRequest;
 import com.myapp.guess_who.room.RoomManager;
 import com.myapp.guess_who.team.Team;
+import com.myapp.guess_who.utils.StringPayload;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Map;
 import java.util.UUID;
@@ -24,7 +23,6 @@ import java.util.UUID;
 @Controller
 public class PlayerController {
 
-    private final SimpMessagingTemplate messagingTemplate;
     private final RoomManager roomManager;
     private final PlayerService playerService;
 
@@ -40,10 +38,10 @@ public class PlayerController {
     public Map<UUID, Player> changePlayerName(
         @DestinationVariable("roomId") UUID roomId,
         @DestinationVariable("playerId") UUID playerId,
-        @RequestBody NewNameRequest newNameRequest
+        @Payload StringPayload newName
     ) {
         Map<UUID, Player> players = roomManager.getRoom(roomId).getPlayers();
-        playerService.changePlayerName(players, playerId, newNameRequest.newName());
+        playerService.changePlayerName(players, playerId, newName.payload());
         return players;
     }
 
@@ -52,7 +50,7 @@ public class PlayerController {
     public Map<UUID, Player> changePlayerTeam(
         @DestinationVariable("roomId") UUID roomId,
         @DestinationVariable("playerId") UUID playerId,
-        @RequestBody Team newTeam
+        @Payload Team newTeam
     ) {
         Map<UUID, Player> players = roomManager.getRoom(roomId).getPlayers();
         playerService.changePlayerTeam(players, playerId, newTeam);

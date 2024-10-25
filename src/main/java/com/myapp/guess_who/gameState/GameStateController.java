@@ -8,9 +8,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.UUID;
 
@@ -41,7 +41,7 @@ public class GameStateController {
 
     @MessageMapping("/room/{roomId}/vote")
     @SendTo("/topic/room/{roomId}/gameState")
-    public GameState voteForCard(@DestinationVariable("roomId") UUID roomId, @RequestBody VoteRequest voteRequest) {
+    public GameState voteForCard(@DestinationVariable("roomId") UUID roomId, @Payload VoteRequest voteRequest) {
         Room room = roomManager.getRoom(roomId);
         GameState gameState = room.getGameState();
         gameStateService.voteForCard(gameState, room.getPlayer(voteRequest.playerId()), voteRequest.cardNumber());
@@ -58,7 +58,7 @@ public class GameStateController {
 
     @MessageMapping("/room/{roomId}/toggleCard")
     @SendTo("/topic/room/{roomId}/gameState")
-    public GameState toggleCard(@DestinationVariable("roomId") UUID roomId, @RequestBody ToggleCardRequest toggleCardRequest) {
+    public GameState toggleCard(@DestinationVariable("roomId") UUID roomId, @Payload ToggleCardRequest toggleCardRequest) {
         GameState gameState = roomManager.getRoom(roomId).getGameState();
         gameStateService.toggleCard(gameState, toggleCardRequest.cardNumber(), toggleCardRequest.team());
         return gameState;
