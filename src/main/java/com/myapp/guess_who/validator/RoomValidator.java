@@ -36,7 +36,7 @@ public class RoomValidator {
     }
 
     private void isGameNotStarted(UUID roomId, Map<UUID, Room> rooms) {
-        if (!rooms.get(roomId).getGameState().getStatus().equals(GameState.Status.NEW)) {
+        if (!rooms.get(roomId).getGameState().getGameStatus().equals(GameState.GameStatus.NEW)) {
             throw new GameAlreadyInProgressException("Game is already in progress (%s)".formatted(roomId));
         }
     }

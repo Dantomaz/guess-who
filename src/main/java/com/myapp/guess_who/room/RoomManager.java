@@ -1,6 +1,6 @@
 package com.myapp.guess_who.room;
 
-import com.myapp.guess_who.gameState.GameStateService;
+import com.myapp.guess_who.gameState.GameState;
 import com.myapp.guess_who.player.Player;
 import com.myapp.guess_who.player.PlayerService;
 import com.myapp.guess_who.utils.FileMappingService;
@@ -21,7 +21,6 @@ public class RoomManager {
 
     private final Map<UUID, Room> rooms = new HashMap<>();
     private final PlayerService playerService;
-    private final GameStateService gameStateService;
     private final RoomValidator roomValidator;
     private final PlayerValidator playerValidator;
     private final FileMappingService fileMappingService;
@@ -33,7 +32,7 @@ public class RoomManager {
 
         host.setHost(true);
         newRoom.addPlayer(host);
-        newRoom.setGameState(gameStateService.getNewGameState());
+        newRoom.setGameState(new GameState());
 
         rooms.put(newRoom.getId(), newRoom);
         return newRoom;

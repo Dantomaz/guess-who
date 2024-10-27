@@ -31,19 +31,19 @@ public class RoomController {
     private final FileMappingService fileMappingService;
 
     @PostMapping("/room")
-    public ResponseEntity<Room> createRoom(@RequestBody Player host, HttpSession httpSession) {
+    public ResponseEntity<RoomDTO> createRoom(@RequestBody Player host, HttpSession httpSession) {
         Room room = roomManager.createRoom(host);
         httpSession.setAttribute("roomId", room.getId());
-        return ResponseEntity.ok(room);
+        return ResponseEntity.ok(new RoomDTO(room, host.getTeam()));
     }
 
     @PostMapping("/room/{roomId}/player")
-    public ResponseEntity<Room> joinRoom(@PathVariable("roomId") UUID roomId, @RequestBody Player player, HttpSession httpSession) {
+    public ResponseEntity<RoomDTO> joinRoom(@PathVariable("roomId") UUID roomId, @RequestBody Player player, HttpSession httpSession) {
         roomManager.addPlayer(roomId, player);
         Room room = roomManager.getRoom(roomId);
         httpSession.setAttribute("roomId", room.getId());
         messagingTemplate.convertAndSend("/topic/room/%s/players".formatted(roomId), room.getPlayers());
-        return ResponseEntity.ok(room);
+        return ResponseEntity.ok(new RoomDTO(room, player.getTeam()));
     }
 
     @DeleteMapping("/room/{roomId}/player/{playerId}")
@@ -68,7 +68,7 @@ public class RoomController {
         }
 
         Player player = room.getPlayer((UUID) httpSession.getAttribute("playerId"));
-        return ResponseEntity.ok(new ReconnectResponse(player, room));
+        return ResponseEntity.ok(new ReconnectResponse(player, new RoomDTO(room, player.getTeam())));
     }
 
     @PostMapping("room/{roomId}/images")

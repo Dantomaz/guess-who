@@ -2,14 +2,16 @@ package com.myapp.guess_who.gameState;
 
 import com.myapp.guess_who.gameState.request.ToggleCardRequest;
 import com.myapp.guess_who.gameState.request.VoteRequest;
+import com.myapp.guess_who.player.Player;
 import com.myapp.guess_who.room.Room;
 import com.myapp.guess_who.room.RoomManager;
+import com.myapp.guess_who.team.Team;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import java.util.UUID;
@@ -20,63 +22,73 @@ import java.util.UUID;
 public class GameStateController {
 
     private final RoomManager roomManager;
-    private final GameStateService gameStateService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @MessageMapping("/room/{roomId}/restartGame")
-    @SendTo("/topic/room/{roomId}/gameState")
-    public GameState restartGame(@DestinationVariable("roomId") UUID roomId) {
+    public void restartGame(@DestinationVariable("roomId") UUID roomId) {
         GameState gameState = roomManager.getRoom(roomId).getGameState();
-        gameStateService.resetGameState(gameState);
-        return gameState;
+        gameState.resetGame();
+        broadcastGameStateChangeToAllTeams(roomId, gameState);
     }
 
     @MessageMapping("/room/{roomId}/prepareGame")
-    @SendTo("/topic/room/{roomId}/gameState")
-    public GameState prepareGame(@DestinationVariable("roomId") UUID roomId) {
-        GameState gameState = roomManager.getRoom(roomId).getGameState();
-        gameStateService.initializeCards(gameState, roomManager.getRoom(roomId).getImages().size());
-        gameStateService.prepareGame(gameState);
-        return gameState;
+    public void prepareGame(@DestinationVariable("roomId") UUID roomId) {
+        Room room = roomManager.getRoom(roomId);
+        GameState gameState = room.getGameState();
+        gameState.prepareGame(room.getImages().size());
+        broadcastGameStateChangeToAllTeams(roomId, gameState);
     }
 
     @MessageMapping("/room/{roomId}/vote")
-    @SendTo("/topic/room/{roomId}/gameState")
-    public GameState voteForCard(@DestinationVariable("roomId") UUID roomId, @Payload VoteRequest voteRequest) {
+    public void voteForCard(
+        @DestinationVariable("roomId") UUID roomId,
+        @Payload VoteRequest voteRequest
+    ) {
         Room room = roomManager.getRoom(roomId);
         GameState gameState = room.getGameState();
-        gameStateService.voteForCard(gameState, room.getPlayer(voteRequest.playerId()), voteRequest.cardNumber());
-        return gameState;
+        Player player = room.getPlayer(voteRequest.playerId());
+        gameState.addPlayerVote(player.getTeam(), player.getId(), voteRequest.cardNumber());
+        broadcastGameStateChangeToAllTeams(roomId, gameState);
     }
 
     @MessageMapping("/room/{roomId}/startGame")
-    @SendTo("/topic/room/{roomId}/gameState")
-    public GameState startGame(@DestinationVariable("roomId") UUID roomId) {
+    public void startGame(@DestinationVariable("roomId") UUID roomId) {
         GameState gameState = roomManager.getRoom(roomId).getGameState();
-        gameStateService.startGame(gameState);
-        return gameState;
+        gameState.startGame();
+        broadcastGameStateChangeToAllTeams(roomId, gameState);
     }
 
     @MessageMapping("/room/{roomId}/toggleCard")
-    @SendTo("/topic/room/{roomId}/gameState")
-    public GameState toggleCard(@DestinationVariable("roomId") UUID roomId, @Payload ToggleCardRequest toggleCardRequest) {
+    public void toggleCard(
+        @DestinationVariable("roomId") UUID roomId,
+        @Payload ToggleCardRequest toggleCardRequest
+    ) {
         GameState gameState = roomManager.getRoom(roomId).getGameState();
-        gameStateService.toggleCard(gameState, toggleCardRequest.cardNumber(), toggleCardRequest.team());
-        return gameState;
+        gameState.toggleCardByPlayer(toggleCardRequest.team(), toggleCardRequest.cardNumber());
+        broadcastGameStateChangeToTeam(roomId, gameState, toggleCardRequest.team());
     }
 
     @MessageMapping("/room/{roomId}/endTurn")
-    @SendTo("/topic/room/{roomId}/gameState")
-    public GameState endTurn(@DestinationVariable("roomId") UUID roomId) {
+    public void endTurn(@DestinationVariable("roomId") UUID roomId) {
         GameState gameState = roomManager.getRoom(roomId).getGameState();
-        gameStateService.nextTurn(gameState);
-        return gameState;
+        gameState.endCurrentTurn();
+        broadcastGameStateChangeToAllTeams(roomId, gameState);
     }
 
     @MessageMapping("/room/{roomId}/guessCard")
-    @SendTo("/topic/room/{roomId}/gameState")
-    public GameState guessCard(@DestinationVariable("roomId") UUID roomId, int cardNumber) {
+    public void guessCard(@DestinationVariable("roomId") UUID roomId, int cardNumber) {
         GameState gameState = roomManager.getRoom(roomId).getGameState();
-        gameStateService.guessCard(gameState, cardNumber);
-        return gameState;
+        gameState.guessCard(cardNumber);
+        broadcastGameStateChangeToAllTeams(roomId, gameState);
+    }
+
+    private void broadcastGameStateChangeToTeam(UUID roomId, GameState gameState, Team team) {
+        messagingTemplate.convertAndSend("/topic/room/%s/gameState/team/%s".formatted(roomId, team), new GameStateDTO(gameState, team));
+    }
+
+    private void broadcastGameStateChangeToAllTeams(UUID roomId, GameState gameState) {
+        String destination = "/topic/room/%s/gameState/team/%s";
+        messagingTemplate.convertAndSend(destination.formatted(roomId, Team.BLUE), new GameStateDTO(gameState, Team.BLUE));
+        messagingTemplate.convertAndSend(destination.formatted(roomId, Team.RED), new GameStateDTO(gameState, Team.RED));
     }
 }

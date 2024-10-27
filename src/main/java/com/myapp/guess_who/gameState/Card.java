@@ -1,25 +1,28 @@
 package com.myapp.guess_who.gameState;
 
-import com.myapp.guess_who.team.Team;
 import lombok.Data;
 
 @Data
 public class Card {
 
     private final int number;
-    private boolean closedByBlue = false;
-    private boolean closedByRed = false;
+    private boolean closed = false;
+    private boolean closedLocked = false; // if a player guessed incorrect card, then the card is closed by system (can't change it's closed state)
 
-    public void reset() {
-        closedByBlue = false;
-        closedByRed = false;
+    public void open() {
+        closed = false;
+        closedLocked = false;
     }
 
-    public void toggleClose(Team team) {
-        if (Team.RED.equals(team)) {
-            closedByRed = !closedByRed;
-        } else {
-            closedByBlue = !closedByBlue;
+    public void toggleCloseByPlayer() {
+        if (closedLocked) {
+            return;
         }
+        closed = !closed;
+    }
+
+    public void forceCloseBySystem() {
+        closed = true;
+        closedLocked = true;
     }
 }
