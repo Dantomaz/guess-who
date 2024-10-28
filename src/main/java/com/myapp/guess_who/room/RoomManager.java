@@ -57,10 +57,15 @@ public class RoomManager {
         Room room = rooms.get(roomId);
         // Remove the player
         room.removePlayer(playerId);
+
         if (room.hasNoPlayers()) {
-            // If it was the last player, close the room and remove uploaded images
+            // Room can be closed if there are no players left
             closeRoom(roomId);
             fileMappingService.cleanUpImages(roomId);
+        } else if (room.getPlayers().size() == 1) {
+            // Player can't play alone
+            room.getGameState().resetGame();
+            playerService.chooseNewHost(room.getPlayers());
         } else {
             playerService.chooseNewHost(room.getPlayers());
         }

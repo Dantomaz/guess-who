@@ -1,5 +1,6 @@
 package com.myapp.guess_who.room;
 
+import com.myapp.guess_who.gameState.GameStateDTO;
 import com.myapp.guess_who.player.Player;
 import com.myapp.guess_who.room.response.ReconnectResponse;
 import com.myapp.guess_who.utils.FileMappingService;
@@ -47,12 +48,25 @@ public class RoomController {
     }
 
     @DeleteMapping("/room/{roomId}/player/{playerId}")
-    public ResponseEntity<Void> leaveRoom(@PathVariable("roomId") UUID roomId, @PathVariable("playerId") UUID playerId, HttpSession httpSession) {
+    public ResponseEntity<Void> leaveRoom(@PathVariable("roomId") UUID roomId, @PathVariable("playerId") UUID playerId) {
         Room room = roomManager.getRoom(roomId);
         roomManager.removePlayer(roomId, playerId);
-        if (room != null) {
-            messagingTemplate.convertAndSend("/topic/room/%s/players".formatted(roomId), room.getPlayers());
+
+        if (room == null) {
+            return ResponseEntity.ok().build();
         }
+
+        messagingTemplate.convertAndSend("/topic/room/%s/players".formatted(roomId), room.getPlayers());
+
+        if (room.getPlayers().size() == 1) {
+            // Need to send game state update to the client to stop the game - player can't play alone
+            Player player = room.getPlayers().values().stream().reduce(null, (player1, player2) -> player2);
+            messagingTemplate.convertAndSend(
+                "/topic/room/%s/gameState/team/%s".formatted(roomId, player.getTeam()),
+                new GameStateDTO(room.getGameState(), player.getTeam())
+            );
+        }
+
         return ResponseEntity.ok().build();
     }
 
