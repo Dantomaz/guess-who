@@ -1,23 +1,7 @@
 spring:
   application:
     name: guess-who
-  liquibase:
-    enabled: true
-    change-log: db/changelog/changelog-master.yaml
-  datasource:
-    driverClassName: org.h2.Driver
-    url: jdbc:h2:mem:database
-    username: sa
-    password: password
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: none
-    show-sql: true
-    format-sql: true
-  h2:
-    console:
-      enabled: true
+  mvc:
     # noinspection SpellCheckingInspection
     problemdetails:
       enabled: true
