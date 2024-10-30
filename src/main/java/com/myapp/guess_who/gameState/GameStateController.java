@@ -26,15 +26,22 @@ public class GameStateController {
 
     @MessageMapping("/room/{roomId}/restartGame")
     public void restartGame(@DestinationVariable("roomId") UUID roomId) {
-        GameState gameState = roomManager.getRoom(roomId).getGameState();
+        Room room = roomManager.getRoom(roomId);
+        GameState gameState = room.getGameState();
         gameState.resetGame();
+        room.clearImages();
+        messagingTemplate.convertAndSend("/topic/room/%s/images".formatted(roomId), room.getImages());
         broadcastGameStateChangeToAllTeams(roomId, gameState);
     }
 
     @MessageMapping("/room/{roomId}/prepareGame")
-    public void prepareGame(@DestinationVariable("roomId") UUID roomId) {
+    public void prepareGame(@DestinationVariable("roomId") UUID roomId, @Payload Boolean useDefaultImages) {
         Room room = roomManager.getRoom(roomId);
         GameState gameState = room.getGameState();
+        if (useDefaultImages) {
+            room.setImages(roomManager.getDefaultImages());
+            messagingTemplate.convertAndSend("/topic/room/%s/images".formatted(roomId), room.getImages());
+        }
         gameState.prepareGame(room.getImages().size());
         broadcastGameStateChangeToAllTeams(roomId, gameState);
     }

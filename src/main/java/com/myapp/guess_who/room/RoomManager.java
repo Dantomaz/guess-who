@@ -6,6 +6,7 @@ import com.myapp.guess_who.player.PlayerService;
 import com.myapp.guess_who.utils.FileMappingService;
 import com.myapp.guess_who.validator.PlayerValidator;
 import com.myapp.guess_who.validator.RoomValidator;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,10 +21,16 @@ import java.util.UUID;
 public class RoomManager {
 
     private final Map<UUID, Room> rooms = new HashMap<>();
+    private final HashMap<Integer, String> defaultImages = new HashMap<>();
     private final PlayerService playerService;
     private final RoomValidator roomValidator;
     private final PlayerValidator playerValidator;
     private final FileMappingService fileMappingService;
+
+    @PostConstruct
+    private void initDefaultImages() {
+        defaultImages.putAll(fileMappingService.getDefaultImages());
+    }
 
     public Room createRoom(Player host) {
         playerValidator.validatePlayer(host);
@@ -73,5 +80,9 @@ public class RoomManager {
 
     public Room getRoom(UUID roomId) {
         return rooms.get(roomId);
+    }
+
+    public HashMap<Integer, String> getDefaultImages() {
+        return new HashMap<>(defaultImages);
     }
 }

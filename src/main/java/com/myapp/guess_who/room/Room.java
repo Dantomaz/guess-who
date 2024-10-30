@@ -2,28 +2,26 @@ package com.myapp.guess_who.room;
 
 import com.myapp.guess_who.gameState.GameState;
 import com.myapp.guess_who.player.Player;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Room {
 
-    private UUID id;
-    private Map<UUID, Player> players;
-    private HashMap<Integer, String> images;
+    private final UUID id;
+    private Map<UUID, Player> players = new HashMap<>();
+    private HashMap<Integer, String> images = new HashMap<>();
     private GameState gameState;
 
+    private Room(UUID id) {
+        this.id = id;
+    }
+
     public static Room create() {
-        return Room.builder().id(UUID.randomUUID()).players(new HashMap<>()).build();
+        return new Room(UUID.randomUUID());
     }
 
     public Player getPlayer(UUID playerId) {
@@ -44,5 +42,9 @@ public class Room {
 
     public boolean hasNoPlayers() {
         return players.isEmpty();
+    }
+
+    public void clearImages() {
+        images.clear();
     }
 }
