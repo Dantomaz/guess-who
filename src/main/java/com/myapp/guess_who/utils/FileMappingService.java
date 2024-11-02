@@ -3,6 +3,7 @@ package com.myapp.guess_who.utils;
 import com.myapp.guess_who.exception.customException.NotEnoughImagesException;
 import com.myapp.guess_who.exception.customException.TooManyImagesException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,13 +22,18 @@ import java.util.stream.IntStream;
 @Service
 public class FileMappingService {
 
-    // %s is a placeholder for roomId, easy to insert via String instance .formatted() method
-    public static final String ROOM_DIR = System.getProperty("user.dir") + "/public/room_%s/";
-    public static final String CUSTOM_IMAGES_UPLOAD_DIR = ROOM_DIR + "images/";
-    private static final String CUSTOM_IMAGES_URL = "http://localhost:8080/room_%s/images/";
-    private static final String DEFAULT_IMAGES_URL = "http://localhost:8080/defaultimages/";
     private static final int IMAGES_MIN_COUNT = 12;
     private static final int IMAGES_MAX_COUNT = 24;
+    // %s is a placeholder for roomId, easy to insert via String instance .formatted() method
+    public static final String ROOM_DIR = Path.of(System.getProperty("user.dir") + "/public/room_%s").normalize().toString();
+    public static final String CUSTOM_IMAGES_UPLOAD_DIR = ROOM_DIR + "/images/";
+    private final String CUSTOM_IMAGES_URL;
+    private final String DEFAULT_IMAGES_URL;
+
+    public FileMappingService(@Value("${custom.application.url}") String applicationUrl) {
+        CUSTOM_IMAGES_URL = applicationUrl + "/room_%s/images/";
+        DEFAULT_IMAGES_URL = applicationUrl + "/defaultimages/";
+    }
 
     public HashMap<Integer, String> storeImages(UUID roomId, List<MultipartFile> images) {
         int numberOfImages = images.size();
@@ -57,6 +63,7 @@ public class FileMappingService {
                 // Store the image in the specified directory
                 File destinationFile = new File(imageDir);
                 image.transferTo(destinationFile);
+                log.info("Image saved to: {}", destinationFile.getCanonicalPath());
 
                 // Construct the URL where the image will be accessible
                 String imageUrl = CUSTOM_IMAGES_URL.formatted(roomId) + uniqueImageName;
@@ -78,7 +85,7 @@ public class FileMappingService {
     private void createDirectories(UUID roomId) {
         // Create a directory for the specific room if it doesn't exist yet
         try {
-            Path path = Path.of(String.format(CUSTOM_IMAGES_UPLOAD_DIR, roomId));
+            Path path = Path.of(CUSTOM_IMAGES_UPLOAD_DIR.formatted(roomId));
             Files.createDirectories(path);
         } catch (IOException e) {
             throw new RuntimeException("Failed to create directory: %s".formatted(e.getMessage()));
@@ -86,7 +93,7 @@ public class FileMappingService {
     }
 
     public void cleanUpImages(UUID roomId) {
-        Path path = Path.of(FileMappingService.ROOM_DIR.formatted(roomId));
+        Path path = Path.of(ROOM_DIR.formatted(roomId));
 
         try {
             // Delete all images

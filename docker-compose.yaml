@@ -1,5 +1,16 @@
 services:
-  database:
-    image: 'redis:7.4.0'
+  app:
+    image: guess-who:0.1
+    build: .
     ports:
-      - '6379:6379'
+      - "8080:8080"
+    env_file: .env.dev # default env file just for development
+    volumes:
+      - /public:/public # anonymous volume, specific to this container instance (for custom images)
+    depends_on:
+      - redis
+
+  redis:
+    image: "redis:7.4.0"
+    ports:
+      - "6379:6379"

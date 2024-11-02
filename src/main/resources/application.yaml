@@ -1,6 +1,8 @@
 spring:
   application:
     name: guess-who
+  profiles:
+    active: ${env_spring_profiles_active}
   mvc:
     # noinspection SpellCheckingInspection
     problemdetails:
@@ -12,12 +14,16 @@ spring:
       max-request-size: -1
   docker:
     compose:
-      lifecycle-management: start_and_stop
-  redis:
-    port: 6379
+      enabled: false
+  data:
+    redis:
+      host: ${env_redis_host}
+      port: ${env_redis_port}
   websocket:
     message-size-limit: 10MB
     buffer-size-limit: 10MB
+  session:
+    timeout: 2h # make session timeout way to long for now, for as long as http and websocket sessions are not properly integrated
 server:
   port: 8080
   servlet:
@@ -27,3 +33,8 @@ server:
         secure: false
         same-site: Lax
         path: /
+custom:
+  application:
+    url: ${env_application_url}
+  client:
+    url: ${env_client_url}
