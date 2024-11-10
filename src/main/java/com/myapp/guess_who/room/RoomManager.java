@@ -76,9 +76,9 @@ public class RoomManager {
         } else if (room.getPlayers().size() == 1) {
             // Player can't play alone
             room.getGameState().resetGame();
-            playerService.chooseNewHost(room.getPlayers());
+            playerService.chooseNewHostAtRandom(room.getPlayers());
         } else {
-            playerService.chooseNewHost(room.getPlayers());
+            playerService.chooseNewHostAtRandom(room.getPlayers());
         }
     }
 

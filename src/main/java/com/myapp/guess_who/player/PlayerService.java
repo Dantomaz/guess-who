@@ -10,7 +10,7 @@ import java.util.UUID;
 @Service
 public class PlayerService {
 
-    public void chooseNewHost(Map<UUID, Player> players) {
+    public void chooseNewHostAtRandom(Map<UUID, Player> players) {
         UUID randomId = chooseRandomPlayerId(players);
         players.get(randomId).setHost(true);
     }
