@@ -25,7 +25,6 @@ import java.util.UUID;
 public class PlayerController {
 
     private final RoomManager roomManager;
-    private final PlayerService playerService;
     private final SimpMessagingTemplate messagingTemplate;
 
     @PostMapping("/player/{playerName}")
@@ -42,9 +41,8 @@ public class PlayerController {
         @DestinationVariable("playerId") UUID playerId,
         @Payload StringPayload newName
     ) {
-        Map<UUID, Player> players = roomManager.getRoom(roomId).getPlayers();
-        playerService.changePlayerName(players, playerId, newName.payload());
-        return players;
+        roomManager.changePlayerName(roomId, playerId, newName.payload());
+        return roomManager.getRoom(roomId).getPlayers();
     }
 
     @MessageMapping("/room/{roomId}/player/{playerId}/changeTeam")
@@ -54,9 +52,8 @@ public class PlayerController {
         @DestinationVariable("playerId") UUID playerId,
         @Payload Team newTeam
     ) {
-        Map<UUID, Player> players = roomManager.getRoom(roomId).getPlayers();
-        playerService.changePlayerTeam(players, playerId, newTeam);
-        return players;
+        roomManager.changePlayerTeam(roomId, playerId, newTeam);
+        return roomManager.getRoom(roomId).getPlayers();
     }
 
     @MessageMapping("/room/{roomId}/player/{playerId}/makeHost")

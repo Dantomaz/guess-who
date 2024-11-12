@@ -30,6 +30,7 @@ public class GameStateController {
         GameState gameState = room.getGameState();
         gameState.resetGame();
         room.clearImages();
+
         messagingTemplate.convertAndSend("/topic/room/%s/images".formatted(roomId), room.getImages());
         broadcastGameStateChangeToAllTeams(roomId, gameState);
     }
@@ -38,11 +39,14 @@ public class GameStateController {
     public void prepareGame(@DestinationVariable("roomId") UUID roomId, @Payload Boolean useDefaultImages) {
         Room room = roomManager.getRoom(roomId);
         GameState gameState = room.getGameState();
+
         if (useDefaultImages) {
             room.setImages(roomManager.getDefaultImages());
             messagingTemplate.convertAndSend("/topic/room/%s/images".formatted(roomId), room.getImages());
         }
+
         gameState.prepareGame(room.getImages().size());
+
         broadcastGameStateChangeToAllTeams(roomId, gameState);
     }
 

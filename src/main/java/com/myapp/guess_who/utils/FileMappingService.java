@@ -70,12 +70,8 @@ public class FileMappingService {
 
                 // Store the image URL in the HashMap with its index
                 uploadedImageUrls.put(i, imageUrl);
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to upload image: %s.%s%s".formatted(
-                    image.getOriginalFilename(),
-                    System.lineSeparator(),
-                    e.getMessage()
-                ));
+            } catch (IOException exception) {
+                throw new RuntimeException("Failed to upload image: %s".formatted(image.getOriginalFilename()), exception);
             }
         }
 
@@ -83,12 +79,13 @@ public class FileMappingService {
     }
 
     private void createDirectories(UUID roomId) {
-        // Create a directory for the specific room if it doesn't exist yet
+        Path path = Path.of(CUSTOM_IMAGES_UPLOAD_DIR.formatted(roomId));
+
+        // Try to create a directory for the specific room, if it doesn't exist yet
         try {
-            Path path = Path.of(CUSTOM_IMAGES_UPLOAD_DIR.formatted(roomId));
             Files.createDirectories(path);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to create directory: %s".formatted(e.getMessage()));
+        } catch (IOException exception) {
+            throw new RuntimeException("Failed to create directory: %s".formatted(path), exception);
         }
     }
 
@@ -102,13 +99,8 @@ public class FileMappingService {
             if (Files.exists(path)) {
                 Files.delete(path);
             }
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to clean up images in directory: %s.%sMessage:%s%s".formatted(
-                path,
-                System.lineSeparator(),
-                System.lineSeparator(),
-                e.getMessage()
-            ));
+        } catch (IOException exception) {
+            throw new RuntimeException("Failed to clean up images in directory: %s".formatted(path), exception);
         }
     }
 

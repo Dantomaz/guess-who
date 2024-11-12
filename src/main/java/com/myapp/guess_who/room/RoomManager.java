@@ -1,8 +1,7 @@
 package com.myapp.guess_who.room;
 
-import com.myapp.guess_who.gameState.GameState;
 import com.myapp.guess_who.player.Player;
-import com.myapp.guess_who.player.PlayerService;
+import com.myapp.guess_who.team.Team;
 import com.myapp.guess_who.utils.FileMappingService;
 import com.myapp.guess_who.validator.PlayerValidator;
 import com.myapp.guess_who.validator.RoomValidator;
@@ -13,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 
 @Slf4j
@@ -22,7 +23,6 @@ public class RoomManager {
 
     private final Map<UUID, Room> rooms = new HashMap<>();
     private final HashMap<Integer, String> defaultImages = new HashMap<>();
-    private final PlayerService playerService;
     private final RoomValidator roomValidator;
     private final PlayerValidator playerValidator;
     private final FileMappingService fileMappingService;
@@ -39,10 +39,13 @@ public class RoomManager {
 
         host.setHost(true);
         newRoom.addPlayer(host);
-        newRoom.setGameState(new GameState());
 
         rooms.put(newRoom.getId(), newRoom);
         return newRoom;
+    }
+
+    public Room getRoom(UUID roomId) {
+        return rooms.get(roomId);
     }
 
     public boolean roomExists(UUID roomId) {
@@ -66,24 +69,48 @@ public class RoomManager {
         roomValidator.validateRoomId(roomId, rooms);
 
         Room room = rooms.get(roomId);
-        // Remove the player
         room.removePlayer(playerId);
 
-        if (room.hasNoPlayers()) {
-            // Room can be closed if there are no players left
+        // Room can be closed if there are no players left
+        if (room.isEmpty()) {
             closeRoom(roomId);
             fileMappingService.cleanUpImages(roomId);
-        } else if (room.getPlayers().size() == 1) {
-            // Player can't play alone
-            room.getGameState().resetGame();
-            playerService.chooseNewHostAtRandom(room.getPlayers());
-        } else {
-            playerService.chooseNewHostAtRandom(room.getPlayers());
+            return;
         }
+
+        chooseNewHostAtRandom(room.getPlayers());
     }
 
-    public Room getRoom(UUID roomId) {
-        return rooms.get(roomId);
+    private void chooseNewHostAtRandom(Map<UUID, Player> players) {
+        UUID randomId = chooseRandomPlayerId(players);
+        players.get(randomId).setHost(true);
+    }
+
+    private UUID chooseRandomPlayerId(Map<UUID, Player> players) {
+        int randomIndex = new Random().nextInt(players.size());
+        return players.keySet().stream().toList().get(randomIndex);
+    }
+
+    public boolean isPlayerLonely(UUID roomId) {
+        Room room = rooms.get(roomId);
+        if (room == null) {
+            return false;
+        }
+        return room.getPlayers().size() == 1;
+    }
+
+    public Optional<Player> getLonelyPlayer(UUID roomId) {
+        return rooms.get(roomId).getPlayers().values().stream().findFirst();
+    }
+
+    public void changePlayerName(UUID roomId, UUID playerId, String newName) {
+        Map<UUID, Player> players = rooms.get(roomId).getPlayers();
+        players.get(playerId).setName(newName);
+    }
+
+    public void changePlayerTeam(UUID roomId, UUID playerId, Team newTeam) {
+        Map<UUID, Player> players = rooms.get(roomId).getPlayers();
+        players.get(playerId).setTeam(newTeam);
     }
 
     public HashMap<Integer, String> getDefaultImages() {

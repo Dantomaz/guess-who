@@ -15,7 +15,7 @@ public class Room {
     private final UUID id;
     private Map<UUID, Player> players = new HashMap<>();
     private HashMap<Integer, String> images = new HashMap<>();
-    private GameState gameState;
+    private GameState gameState = new GameState();
 
     private Room(UUID id) {
         this.id = id;
@@ -41,7 +41,7 @@ public class Room {
         players.put(player.getId(), player);
     }
 
-    public boolean hasNoPlayers() {
+    public boolean isEmpty() {
         return players.isEmpty();
     }
 
