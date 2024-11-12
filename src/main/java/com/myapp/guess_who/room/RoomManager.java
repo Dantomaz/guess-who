@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
@@ -89,18 +88,6 @@ public class RoomManager {
     private UUID chooseRandomPlayerId(Map<UUID, Player> players) {
         int randomIndex = new Random().nextInt(players.size());
         return players.keySet().stream().toList().get(randomIndex);
-    }
-
-    public boolean isPlayerLonely(UUID roomId) {
-        Room room = rooms.get(roomId);
-        if (room == null) {
-            return false;
-        }
-        return room.getPlayers().size() == 1;
-    }
-
-    public Optional<Player> getLonelyPlayer(UUID roomId) {
-        return rooms.get(roomId).getPlayers().values().stream().findFirst();
     }
 
     public void changePlayerName(UUID roomId, UUID playerId, String newName) {

@@ -1,6 +1,5 @@
 package com.myapp.guess_who.room;
 
-import com.myapp.guess_who.gameState.GameStateDTO;
 import com.myapp.guess_who.player.Player;
 import com.myapp.guess_who.room.response.ReconnectResponse;
 import com.myapp.guess_who.utils.FileMappingService;
@@ -23,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -75,24 +73,9 @@ public class RoomController {
     public ResponseEntity<Void> leaveRoom(@PathVariable("roomId") UUID roomId, @PathVariable("playerId") UUID playerId) {
         Room room = roomManager.getRoom(roomId);
         roomManager.removePlayer(roomId, playerId);
+
         messagingTemplate.convertAndSend("/topic/room/%s/players".formatted(roomId), room.getPlayers());
-
-        // Reset GameState if only one player is left (player can't play alone)
-        if (roomManager.isPlayerLonely(roomId)) {
-            Optional<Player> lonelyPlayer = roomManager.getLonelyPlayer(roomId);
-            lonelyPlayer.ifPresent((player) -> updateGameStateForLonelyPlayer(roomId, player));
-        }
-
         return ResponseEntity.ok().build();
-    }
-
-    private void updateGameStateForLonelyPlayer(UUID roomId, Player player) {
-        Room room = roomManager.getRoom(roomId);
-        room.getGameState().resetGame();
-        messagingTemplate.convertAndSend(
-            "/topic/room/%s/gameState/team/%s".formatted(roomId, player.getTeam()),
-            new GameStateDTO(room.getGameState(), player.getTeam())
-        );
     }
 
     @PostMapping("/room/reconnect")
