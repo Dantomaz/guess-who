@@ -11,13 +11,11 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.UUID;
 
@@ -28,6 +26,7 @@ public class PlayerController {
 
     private final RoomManager roomManager;
     private final PlayerService playerService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @PostMapping("/player/{playerName}")
     public ResponseEntity<Player> createPlayer(@PathVariable("playerName") String playerName, HttpSession httpSession) {
@@ -58,5 +57,20 @@ public class PlayerController {
         Map<UUID, Player> players = roomManager.getRoom(roomId).getPlayers();
         playerService.changePlayerTeam(players, playerId, newTeam);
         return players;
+    }
+
+    @MessageMapping("/room/{roomId}/player/{playerId}/makeHost")
+    @SendTo("/topic/room/{roomId}/players")
+    public Map<UUID, Player> makePlayerHost(@DestinationVariable("roomId") UUID roomId, @DestinationVariable("playerId") UUID playerId) {
+        roomManager.makePlayerHost(roomId, playerId);
+        return roomManager.getRoom(roomId).getPlayers();
+    }
+
+    @MessageMapping("/room/{roomId}/player/{playerId}/kick")
+    @SendTo("/topic/room/{roomId}/players")
+    public Map<UUID, Player> kickPlayer(@DestinationVariable("roomId") UUID roomId, @DestinationVariable("playerId") UUID playerId) {
+        roomManager.removePlayer(roomId, playerId);
+        messagingTemplate.convertAndSend("/topic/room/%s/player/%s/disconnect".formatted(roomId, playerId), "kick");
+        return roomManager.getRoom(roomId).getPlayers();
     }
 }

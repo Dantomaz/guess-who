@@ -43,6 +43,6 @@ public class HttpSessionEventListener {
         }
 
         roomManager.removePlayer(roomId, playerId);
-        messagingTemplate.convertAndSend("/topic/room/%s/player/%s/sessionInvalidate".formatted(roomId, playerId), "timeout");
+        messagingTemplate.convertAndSend("/topic/room/%s/player/%s/disconnect".formatted(roomId, playerId), "timeout");
     }
 }

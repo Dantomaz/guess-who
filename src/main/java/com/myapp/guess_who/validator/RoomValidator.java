@@ -25,19 +25,19 @@ public class RoomValidator {
 
     private void isRoomIdNotBlank(UUID roomId) {
         if (StringUtils.isBlank(roomId.toString())) {
-            throw new IllegalArgumentException("Incorrect room ID (%s)".formatted(roomId));
+            throw new IllegalArgumentException("Incorrect room ID");
         }
     }
 
     private void isRoomCreated(UUID roomId, Map<UUID, Room> rooms) {
         if (!rooms.containsKey(roomId)) {
-            throw new NoSuchRoomException("Room does not exist (%s)".formatted(roomId));
+            throw new NoSuchRoomException("Room does not exist");
         }
     }
 
     private void isGameNotStarted(UUID roomId, Map<UUID, Room> rooms) {
         if (!rooms.get(roomId).getGameState().getGameStatus().equals(GameState.GameStatus.NEW)) {
-            throw new GameAlreadyInProgressException("Game is already in progress (%s)".formatted(roomId));
+            throw new GameAlreadyInProgressException("Game is already in progress");
         }
     }
 }

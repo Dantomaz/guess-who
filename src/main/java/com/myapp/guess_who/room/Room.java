@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Data
@@ -46,5 +47,19 @@ public class Room {
 
     public void clearImages() {
         images.clear();
+    }
+
+    public void switchHostTo(UUID playerId) {
+        clearOldHost();
+        setNewHost(playerId);
+    }
+
+    private void clearOldHost() {
+        Optional<Player> host = players.values().stream().filter(Player::isHost).findFirst();
+        host.ifPresent(player -> player.setHost(false));
+    }
+
+    private void setNewHost(UUID playerId) {
+        players.get(playerId).setHost(true);
     }
 }

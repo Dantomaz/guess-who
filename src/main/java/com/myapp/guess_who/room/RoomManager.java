@@ -57,8 +57,8 @@ public class RoomManager {
         playerValidator.validatePlayer(player);
         roomValidator.validateRoom(roomId, rooms);
 
-        player.setHost(false);
-        rooms.get(roomId).addPlayer(player);
+        Room room = rooms.get(roomId);
+        room.addPlayer(player);
     }
 
     public void removePlayer(UUID roomId, UUID playerId) {
@@ -88,5 +88,10 @@ public class RoomManager {
 
     public HashMap<Integer, String> getDefaultImages() {
         return new HashMap<>(defaultImages);
+    }
+
+    public void makePlayerHost(UUID roomId, UUID playerId) {
+        Room room = rooms.get(roomId);
+        room.switchHostTo(playerId);
     }
 }
