@@ -32,17 +32,30 @@ public class RoomController {
     private final FileMappingService fileMappingService;
 
     @PostMapping("/room")
-    public ResponseEntity<RoomDTO> createRoom(@RequestBody Player host, HttpSession httpSession) {
+    public ResponseEntity<RoomDTO> createRoom(@RequestBody Player host, HttpSession httpSession, HttpServletResponse response) {
         Room room = roomManager.createRoom(host);
         httpSession.setAttribute("roomId", room.getId());
+        response.addCookie(createReconnectCookie());
         return ResponseEntity.ok(new RoomDTO(room, host.getTeam()));
     }
 
+    private Cookie createReconnectCookie() {
+        Cookie cookie = new Cookie("RECONNECT", "true");
+        cookie.setMaxAge(sessionTimeoutInSeconds);
+        return cookie;
+    }
+
     @PostMapping("/room/{roomId}/player")
-    public ResponseEntity<RoomDTO> joinRoom(@PathVariable("roomId") UUID roomId, @RequestBody Player player, HttpSession httpSession) {
+    public ResponseEntity<RoomDTO> joinRoom(
+        @PathVariable("roomId") UUID roomId,
+        @RequestBody Player player,
+        HttpSession httpSession,
+        HttpServletResponse response
+    ) {
         roomManager.addPlayer(roomId, player);
         Room room = roomManager.getRoom(roomId);
         httpSession.setAttribute("roomId", room.getId());
+        response.addCookie(createReconnectCookie());
         messagingTemplate.convertAndSend("/topic/room/%s/players".formatted(roomId), room.getPlayers());
         return ResponseEntity.ok(new RoomDTO(room, player.getTeam()));
     }
