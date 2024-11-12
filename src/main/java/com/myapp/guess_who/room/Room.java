@@ -38,10 +38,6 @@ public class Room {
         players.remove(playerId);
     }
 
-    public void updatePlayer(Player player) {
-        players.put(player.getId(), player);
-    }
-
     public boolean isEmpty() {
         return players.isEmpty();
     }
