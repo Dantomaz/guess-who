@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 
 @Slf4j
@@ -77,17 +76,9 @@ public class RoomManager {
             return;
         }
 
-        chooseNewHostAtRandom(room.getPlayers());
-    }
-
-    private void chooseNewHostAtRandom(Map<UUID, Player> players) {
-        UUID randomId = chooseRandomPlayerId(players);
-        players.get(randomId).setHost(true);
-    }
-
-    private UUID chooseRandomPlayerId(Map<UUID, Player> players) {
-        int randomIndex = new Random().nextInt(players.size());
-        return players.keySet().stream().toList().get(randomIndex);
+        if (room.hasNoHost()) {
+            room.selectNewHostAtRandom();
+        }
     }
 
     public void changePlayerName(UUID roomId, UUID playerId, String newName) {

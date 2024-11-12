@@ -7,6 +7,7 @@ import lombok.Data;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 
 @Data
@@ -49,9 +50,22 @@ public class Room {
         images.clear();
     }
 
+    public boolean hasNoHost() {
+        return players.values().stream().noneMatch(Player::isHost);
+    }
+
+    public void selectNewHostAtRandom() {
+        selectNewHost(chooseRandomPlayerId());
+    }
+
+    private UUID chooseRandomPlayerId() {
+        int randomIndex = new Random().nextInt(players.size());
+        return players.keySet().stream().toList().get(randomIndex);
+    }
+
     public void switchHostTo(UUID playerId) {
         clearOldHost();
-        setNewHost(playerId);
+        selectNewHost(playerId);
     }
 
     private void clearOldHost() {
@@ -59,7 +73,7 @@ public class Room {
         host.ifPresent(player -> player.setHost(false));
     }
 
-    private void setNewHost(UUID playerId) {
+    private void selectNewHost(UUID playerId) {
         players.get(playerId).setHost(true);
     }
 }
