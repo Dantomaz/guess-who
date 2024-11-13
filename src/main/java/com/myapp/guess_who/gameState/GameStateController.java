@@ -58,14 +58,13 @@ public class GameStateController {
         Room room = roomManager.getRoom(roomId);
         GameState gameState = room.getGameState();
         Player player = room.getPlayer(voteRequest.playerId());
-        gameState.addPlayerVote(player.getTeam(), player.getId(), voteRequest.cardNumber());
-        broadcastGameStateChangeToAllTeams(roomId, gameState);
-    }
 
-    @MessageMapping("/room/{roomId}/startGame")
-    public void startGame(@DestinationVariable("roomId") UUID roomId) {
-        GameState gameState = roomManager.getRoom(roomId).getGameState();
-        gameState.startGame();
+        gameState.addPlayerVote(player.getTeam(), player.getId(), voteRequest.cardNumber());
+
+        if (room.getPlayers().size() == gameState.getTotalNumberOfPlayersVotes()) {
+            gameState.startGame();
+        }
+
         broadcastGameStateChangeToAllTeams(roomId, gameState);
     }
 
