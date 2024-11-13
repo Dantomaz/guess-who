@@ -49,6 +49,9 @@ public class RoomController {
     private Cookie createReconnectCookie() {
         Cookie cookie = new Cookie("RECONNECT", "true");
         cookie.setMaxAge(sessionTimeoutInSeconds);
+        cookie.setHttpOnly(false);
+        cookie.setSecure(true);
+        cookie.setPath("/");
         return cookie;
     }
 
