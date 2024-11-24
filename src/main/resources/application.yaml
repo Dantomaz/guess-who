@@ -28,7 +28,7 @@ spring:
       repository-type: indexed # needed to be able to listen for redis session events
       configure-action: none
 server:
-  port: 8080
+  port: ${env_application_port}
   servlet:
     session:
       cookie:
