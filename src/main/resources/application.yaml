@@ -19,6 +19,8 @@ spring:
     redis:
       host: ${env_redis_host}
       port: ${env_redis_port}
+      username: ${env_redis_username}
+      password: ${env_redis_password}
   websocket:
     message-size-limit: 10MB
     buffer-size-limit: 10MB
