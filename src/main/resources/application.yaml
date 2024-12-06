@@ -29,6 +29,15 @@ spring:
     redis:
       repository-type: indexed # needed to be able to listen for redis session events
       configure-action: none
+  cloud:
+    aws:
+      credentials:
+        access-key: ${env_aws_access_key}
+        secret-key: ${env_aws_secret_key}
+      s3:
+        region: ${env_aws_s3_region}
+        endpoint: ${env_aws_s3_endpoint}
+        path-style-access-enabled: true
 server:
   port: ${env_application_port}
   servlet:
@@ -41,5 +50,8 @@ server:
 custom:
   application:
     url: ${env_application_url}
+  aws:
+    s3:
+      bucket: ${env_aws_s3_bucket}
   client:
     url: ${env_client_url}

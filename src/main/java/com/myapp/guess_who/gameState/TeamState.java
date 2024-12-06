@@ -11,7 +11,7 @@ import java.util.UUID;
 public class TeamState {
 
     private List<Card> cards;
-    private int pickedCardNumber;
+    private Integer pickedCardNumber;
     private Map<UUID, Integer> playersVotes = new HashMap<>();
 
     public void addPlayerVote(UUID playerId, int cardNumber) {

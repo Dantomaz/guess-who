@@ -1,8 +1,8 @@
 package com.myapp.guess_who.room;
 
 import com.myapp.guess_who.player.Player;
+import com.myapp.guess_who.storage.FileService;
 import com.myapp.guess_who.team.Team;
-import com.myapp.guess_who.utils.FileMappingService;
 import com.myapp.guess_who.validator.PlayerValidator;
 import com.myapp.guess_who.validator.RoomValidator;
 import jakarta.annotation.PostConstruct;
@@ -20,14 +20,14 @@ import java.util.UUID;
 public class RoomManager {
 
     private final Map<UUID, Room> rooms = new HashMap<>();
-    private final HashMap<Integer, String> defaultImages = new HashMap<>();
+    private final Map<Integer, byte[]> defaultImages = new HashMap<>();
     private final RoomValidator roomValidator;
     private final PlayerValidator playerValidator;
-    private final FileMappingService fileMappingService;
+    private final FileService fileService;
 
     @PostConstruct
     private void initDefaultImages() {
-        defaultImages.putAll(fileMappingService.getDefaultImages());
+        defaultImages.putAll(fileService.downloadDefaultImages());
     }
 
     public Room createRoom(Player host) {
@@ -52,6 +52,7 @@ public class RoomManager {
 
     public void closeRoom(UUID roomId) {
         rooms.remove(roomId);
+        fileService.deleteCustomImages(roomId);
     }
 
     public void addPlayer(UUID roomId, Player player) {
@@ -72,7 +73,6 @@ public class RoomManager {
         // Room can be closed if there are no players left
         if (room.isEmpty()) {
             closeRoom(roomId);
-            fileMappingService.cleanUpImages(roomId);
             return;
         }
 
@@ -91,7 +91,7 @@ public class RoomManager {
         players.get(playerId).setTeam(newTeam);
     }
 
-    public HashMap<Integer, String> getDefaultImages() {
+    public Map<Integer, byte[]> getDefaultImages() {
         return new HashMap<>(defaultImages);
     }
 

@@ -5,12 +5,23 @@ services:
     ports:
       - "8080:8080"
     env_file: .env.dev # default env file just for development
-    volumes:
-      - /public:/public # anonymous volume, specific to this container instance (for custom images)
     depends_on:
       - redis
+      - localstack
 
   redis:
-    image: "redis:7.4.0"
+    image: redis:7.4.0
     ports:
       - "6379:6379"
+
+  localstack:
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"
+    volumes:
+      - ./script/localstack/images/default:/etc/localstack/init/images/default
+      - ./script/localstack/init-s3-bucket.sh:/etc/localstack/init/ready.d/init-s3-bucket.sh
+    environment:
+      - SERVICES=s3
+      - DEBUG=1
+      - AWS_DEFAULT_REGION=eu-central-1
