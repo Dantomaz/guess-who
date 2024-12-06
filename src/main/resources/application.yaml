@@ -48,8 +48,6 @@ server:
         same-site: None
         path: /
 custom:
-  application:
-    url: ${env_application_url}
   aws:
     s3:
       bucket: ${env_aws_s3_bucket}
