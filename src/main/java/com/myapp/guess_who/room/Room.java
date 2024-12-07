@@ -15,7 +15,7 @@ public class Room {
 
     private final UUID id;
     private Map<UUID, Player> players = new HashMap<>();
-    private Map<Integer, byte[]> images = new HashMap<>();
+    private Map<Integer, String> images = new HashMap<>();
     private GameState gameState = new GameState();
 
     private Room(UUID id) {

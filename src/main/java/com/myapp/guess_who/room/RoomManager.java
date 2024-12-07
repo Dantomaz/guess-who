@@ -20,14 +20,14 @@ import java.util.UUID;
 public class RoomManager {
 
     private final Map<UUID, Room> rooms = new HashMap<>();
-    private final Map<Integer, byte[]> defaultImages = new HashMap<>();
+    private final Map<Integer, String> defaultImages = new HashMap<>();
     private final RoomValidator roomValidator;
     private final PlayerValidator playerValidator;
     private final FileService fileService;
 
     @PostConstruct
     private void initDefaultImages() {
-        defaultImages.putAll(fileService.downloadDefaultImages());
+        defaultImages.putAll(fileService.getDefaultImagesUrls());
     }
 
     public Room createRoom(Player host) {
@@ -91,7 +91,7 @@ public class RoomManager {
         players.get(playerId).setTeam(newTeam);
     }
 
-    public Map<Integer, byte[]> getDefaultImages() {
+    public Map<Integer, String> getDefaultImages() {
         return new HashMap<>(defaultImages);
     }
 

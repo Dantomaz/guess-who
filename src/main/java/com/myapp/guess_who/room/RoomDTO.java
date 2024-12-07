@@ -13,7 +13,7 @@ public class RoomDTO {
 
     private final UUID id;
     private final Map<UUID, Player> players;
-    private final Map<Integer, byte[]> images;
+    private final Map<Integer, String> images;
     private final GameStateDTO gameState;
 
     public RoomDTO(Room room, Team team) {

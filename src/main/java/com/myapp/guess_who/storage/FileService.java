@@ -66,17 +66,17 @@ public class FileService {
         s3Service.deleteFiles(CUSTOM_IMAGES_DIRECTORY.formatted(roomId));
     }
 
-    public Map<Integer, byte[]> downloadCustomImages(UUID roomId) {
-        List<byte[]> images = s3Service.downloadFiles(CUSTOM_IMAGES_DIRECTORY.formatted(roomId));
-        return generateImageMap(images);
+    public Map<Integer, String> getCustomImagesUrls(UUID roomId) {
+        List<String> images = s3Service.getFilesUrls(CUSTOM_IMAGES_DIRECTORY.formatted(roomId));
+        return convertToMap(images);
     }
 
-    public Map<Integer, byte[]> downloadDefaultImages() {
-        List<byte[]> images = s3Service.downloadFiles(DEFAULT_IMAGES_DIRECTORY);
-        return generateImageMap(images);
+    public Map<Integer, String> getDefaultImagesUrls() {
+        List<String> images = s3Service.getFilesUrls(DEFAULT_IMAGES_DIRECTORY);
+        return convertToMap(images);
     }
 
-    private Map<Integer, byte[]> generateImageMap(List<byte[]> images) {
+    private Map<Integer, String> convertToMap(List<String> images) {
         return IntStream.range(0, images.size())
             .boxed()
             .collect(Collectors.toMap(

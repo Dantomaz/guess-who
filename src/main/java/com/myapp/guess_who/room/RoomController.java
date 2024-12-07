@@ -101,13 +101,13 @@ public class RoomController {
     }
 
     @PostMapping("/room/{roomId}/images")
-    public ResponseEntity<Map<Integer, byte[]>> uploadImages(
+    public ResponseEntity<Map<Integer, String>> uploadImages(
         @PathVariable("roomId") UUID roomId,
         @RequestParam("images") List<MultipartFile> images
     ) {
         Room room = roomManager.getRoom(roomId);
         fileService.uploadCustomImages(roomId, images);
-        Map<Integer, byte[]> uploadedImages = fileService.downloadCustomImages(roomId);
+        Map<Integer, String> uploadedImages = fileService.getCustomImagesUrls(roomId);
         room.setImages(uploadedImages);
 
         messagingTemplate.convertAndSend("/topic/room/%s/images".formatted(roomId), uploadedImages);
@@ -123,17 +123,17 @@ public class RoomController {
     }
 
     @GetMapping("/download/default")
-    public ResponseEntity<Map<Integer, byte[]>> downloadDefaultFiles() {
-        return ResponseEntity.ok(fileService.downloadDefaultImages());
+    public ResponseEntity<Map<Integer, String>> downloadDefaultFiles() {
+        return ResponseEntity.ok(fileService.getDefaultImagesUrls());
     }
 
     @GetMapping("/download/{roomId}")
-    public ResponseEntity<Map<Integer, byte[]>> downloadFiles(@PathVariable("roomId") UUID roomId) {
-        return ResponseEntity.ok(fileService.downloadCustomImages(roomId));
+    public ResponseEntity<Map<Integer, String>> downloadFiles(@PathVariable("roomId") UUID roomId) {
+        return ResponseEntity.ok(fileService.getCustomImagesUrls(roomId));
     }
 
     @PostMapping("/upload/{roomId}")
-    public ResponseEntity<List<byte[]>> uploadFiles(@PathVariable("roomId") UUID roomId, @RequestBody List<MultipartFile> images) {
+    public ResponseEntity<List<String>> uploadFiles(@PathVariable("roomId") UUID roomId, @RequestBody List<MultipartFile> images) {
         if (images == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
@@ -143,7 +143,7 @@ public class RoomController {
     }
 
     @DeleteMapping("/delete/{roomId}")
-    public ResponseEntity<List<byte[]>> deleteFiles(@PathVariable("roomId") UUID roomId) {
+    public ResponseEntity<List<String>> deleteFiles(@PathVariable("roomId") UUID roomId) {
         fileService.deleteCustomImages(roomId);
         return ResponseEntity.ok().build();
     }
