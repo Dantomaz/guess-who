@@ -45,6 +45,54 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+// task to prepare files for AWS deployment
+tasks.register('awsBuild') {
+    doLast {
+        def awsBuildDir = "${buildDir}/aws-build"
+        def jarName = "${project.name}-${project.version}.jar"
+
+        // create aws-build directory
+        mkdir(awsBuildDir)
+
+        // copy the .jar file to the aws-build directory
+        copy {
+            from "${buildDir}/libs/${jarName}"
+            into awsBuildDir
+        }
+
+        // copy additional files from the "aws" directory
+        copy {
+            from file('aws')
+            into awsBuildDir
+        }
+
+        // replace @jarname@ token in the Procfile with the actual jar name
+        def procfile = file("${awsBuildDir}/Procfile")
+        if (procfile.exists()) {
+            def content = procfile.text.replace("@jarname@", jarName)
+            procfile.text = content
+        } else {
+            throw new GradleException("Procfile not found in aws-build directory!")
+        }
+    }
+}
+
+// zip everything into aws fat jar
+tasks.register('awsJar', Zip) {
+    def jarName = "${project.name}-aws-${project.version}.jar"
+    from("${buildDir}/aws-build")
+    destinationDirectory.set(file("${buildDir}/libs"))
+    archiveFileName.set("${jarName}")
+}
+
+tasks.named('build').configure {
+    dependsOn 'awsJar'
+}
+
+tasks.named('awsJar').configure {
+    dependsOn 'awsBuild'
+}
+
 tasks.named('test') {
     useJUnitPlatform()
     jvmArgs("-XX:+EnableDynamicAgentLoading", "-Xshare:off")

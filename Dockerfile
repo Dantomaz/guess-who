@@ -12,7 +12,7 @@ COPY build.gradle settings.gradle $BUILD_HOME
 # Set working directory inside the container
 WORKDIR $BUILD_HOME
 # Build the application
-RUN gradle clean build
+RUN gradle clean build -x awsJar
 
 
 # Use an OpenJDK 21 oracle base image
