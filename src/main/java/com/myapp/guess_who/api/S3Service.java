@@ -6,11 +6,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.GetUrlRequest;
-import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
@@ -30,11 +28,6 @@ public class S3Service {
 
     @Value("${custom.aws.s3.bucket}")
     private String bucket;
-
-    public List<String> getAllBuckets() {
-        ListBucketsResponse response = s3Client.listBuckets();
-        return response.buckets().stream().map(Bucket::name).toList();
-    }
 
     public void uploadFiles(String directory, List<File> files) {
         files.forEach(file -> uploadFile(directory, file));

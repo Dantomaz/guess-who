@@ -1,6 +1,5 @@
 package com.myapp.guess_who.room;
 
-import com.myapp.guess_who.api.S3Service;
 import com.myapp.guess_who.player.Player;
 import com.myapp.guess_who.room.response.ReconnectResponse;
 import com.myapp.guess_who.storage.FileService;
@@ -15,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,7 +35,6 @@ public class RoomController {
     private final SimpMessagingTemplate messagingTemplate;
     private final RoomManager roomManager;
     private final FileService fileService;
-    private final S3Service s3Service;
 
     @PostMapping("/room")
     public ResponseEntity<RoomDTO> createRoom(@RequestBody Player host, HttpSession httpSession, HttpServletResponse response) {
@@ -112,39 +109,5 @@ public class RoomController {
 
         messagingTemplate.convertAndSend("/topic/room/%s/images".formatted(roomId), uploadedImages);
         return ResponseEntity.ok(uploadedImages);
-    }
-
-
-    // ===== DELETE ALL ENDPOINTS BELOW ===== //
-
-    @GetMapping("/buckets")
-    public ResponseEntity<List<String>> getAllBuckets() {
-        return ResponseEntity.ok(s3Service.getAllBuckets());
-    }
-
-    @GetMapping("/download/default")
-    public ResponseEntity<Map<Integer, String>> downloadDefaultFiles() {
-        return ResponseEntity.ok(fileService.getDefaultImagesUrls());
-    }
-
-    @GetMapping("/download/{roomId}")
-    public ResponseEntity<Map<Integer, String>> downloadFiles(@PathVariable("roomId") UUID roomId) {
-        return ResponseEntity.ok(fileService.getCustomImagesUrls(roomId));
-    }
-
-    @PostMapping("/upload/{roomId}")
-    public ResponseEntity<List<String>> uploadFiles(@PathVariable("roomId") UUID roomId, @RequestBody List<MultipartFile> images) {
-        if (images == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-        images.forEach(image -> System.out.println(image.getOriginalFilename()));
-        fileService.uploadCustomImages(roomId, images);
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/delete/{roomId}")
-    public ResponseEntity<List<String>> deleteFiles(@PathVariable("roomId") UUID roomId) {
-        fileService.deleteCustomImages(roomId);
-        return ResponseEntity.ok().build();
     }
 }
