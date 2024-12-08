@@ -40,6 +40,9 @@ public class RoomController {
     public ResponseEntity<RoomDTO> createRoom(@RequestBody Player host, HttpSession httpSession, HttpServletResponse response) {
         Room room = roomManager.createRoom(host);
 
+        if (httpSession.getAttribute("playerId") == null) {
+            httpSession.setAttribute("playerId", host.getId());
+        }
         httpSession.setAttribute("roomId", room.getId());
         response.addCookie(createReconnectCookie());
 
@@ -65,6 +68,9 @@ public class RoomController {
         roomManager.addPlayer(roomId, player);
         Room room = roomManager.getRoom(roomId);
 
+        if (httpSession.getAttribute("playerId") == null) {
+            httpSession.setAttribute("playerId", player.getId());
+        }
         httpSession.setAttribute("roomId", room.getId());
         response.addCookie(createReconnectCookie());
 
