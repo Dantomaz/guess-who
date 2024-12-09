@@ -18,8 +18,9 @@ public class Player {
     private String name;
     private boolean host;
     private Team team;
+    private boolean connected;
 
     public static Player createPlayer(String name) {
-        return Player.builder().id(UUID.randomUUID()).name(name).host(false).team(Team.NONE).build();
+        return Player.builder().id(UUID.randomUUID()).name(name).host(false).team(Team.NONE).connected(true).build();
     }
 }
