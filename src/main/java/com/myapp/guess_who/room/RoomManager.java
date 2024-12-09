@@ -73,10 +73,23 @@ public class RoomManager {
         // Room can be closed if there are no players left
         if (room.isEmpty()) {
             closeRoom(roomId);
+        } else {
+            verifyRoomHasViableHost(roomId);
+        }
+    }
+
+    public void changePlayerConnectedStatus(UUID roomId, UUID playerId, boolean connectedStatus) {
+        playerValidator.validatePlayerId(playerId);
+        roomValidator.validateRoomId(roomId, rooms);
+
+        Room room = rooms.get(roomId);
+
+        if (!room.hasPlayer(playerId)) {
             return;
         }
 
-        if (room.hasNoHost()) {
+        room.changePlayerConnectedStatus(playerId, connectedStatus);
+        if (room.getPlayer(playerId).isHost()) {
             room.selectNewHostAtRandom();
         }
     }
@@ -98,5 +111,12 @@ public class RoomManager {
     public void makePlayerHost(UUID roomId, UUID playerId) {
         Room room = rooms.get(roomId);
         room.switchHostTo(playerId);
+    }
+
+    public void verifyRoomHasViableHost(UUID roomId) {
+        Room room = rooms.get(roomId);
+        if (!room.hasViableHost()) {
+            room.selectNewHostAtRandom();
+        }
     }
 }

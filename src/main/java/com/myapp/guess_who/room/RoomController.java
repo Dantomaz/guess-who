@@ -66,6 +66,7 @@ public class RoomController {
         HttpServletResponse response
     ) {
         roomManager.addPlayer(roomId, player);
+        roomManager.verifyRoomHasViableHost(roomId);
         Room room = roomManager.getRoom(roomId);
 
         if (httpSession.getAttribute("playerId") == null) {
@@ -100,6 +101,9 @@ public class RoomController {
         }
 
         Player player = room.getPlayer((UUID) httpSession.getAttribute("playerId"));
+        player.setConnected(true);
+        roomManager.verifyRoomHasViableHost(roomId);
+
         return ResponseEntity.ok(new ReconnectResponse(player, new RoomDTO(room, player.getTeam())));
     }
 
