@@ -3,8 +3,6 @@ package com.myapp.guess_who.room;
 import com.myapp.guess_who.player.Player;
 import com.myapp.guess_who.room.response.ReconnectResponse;
 import com.myapp.guess_who.storage.FileService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,34 +35,19 @@ public class RoomController {
     private final FileService fileService;
 
     @PostMapping("/room")
-    public ResponseEntity<RoomDTO> createRoom(@RequestBody Player host, HttpSession httpSession, HttpServletResponse response) {
+    public ResponseEntity<RoomDTO> createRoom(@RequestBody Player host, HttpSession httpSession) {
         Room room = roomManager.createRoom(host);
 
         if (httpSession.getAttribute("playerId") == null) {
             httpSession.setAttribute("playerId", host.getId());
         }
         httpSession.setAttribute("roomId", room.getId());
-        response.addCookie(createReconnectCookie());
 
         return ResponseEntity.ok(new RoomDTO(room, host.getTeam()));
     }
 
-    private Cookie createReconnectCookie() {
-        Cookie cookie = new Cookie("RECONNECT", "true");
-        cookie.setMaxAge(sessionTimeoutInSeconds);
-        cookie.setHttpOnly(false);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        return cookie;
-    }
-
     @PostMapping("/room/{roomId}/player")
-    public ResponseEntity<RoomDTO> joinRoom(
-        @PathVariable("roomId") UUID roomId,
-        @RequestBody Player player,
-        HttpSession httpSession,
-        HttpServletResponse response
-    ) {
+    public ResponseEntity<RoomDTO> joinRoom(@PathVariable("roomId") UUID roomId, @RequestBody Player player, HttpSession httpSession) {
         roomManager.addPlayer(roomId, player);
         roomManager.verifyRoomHasViableHost(roomId);
         Room room = roomManager.getRoom(roomId);
@@ -73,7 +56,6 @@ public class RoomController {
             httpSession.setAttribute("playerId", player.getId());
         }
         httpSession.setAttribute("roomId", room.getId());
-        response.addCookie(createReconnectCookie());
 
         messagingTemplate.convertAndSend("/topic/room/%s/players".formatted(roomId), room.getPlayers());
         return ResponseEntity.ok(new RoomDTO(room, player.getTeam()));
@@ -88,22 +70,28 @@ public class RoomController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/room/reconnect")
-    public ResponseEntity<ReconnectResponse> reconnect(HttpSession httpSession, HttpServletResponse response) {
-        UUID roomId = (UUID) httpSession.getAttribute("roomId");
-        if (roomId == null) {
+    @PostMapping("/room/{roomId}/player/{playerId}/reconnect")
+    public ResponseEntity<ReconnectResponse> reconnect(
+        @PathVariable("roomId") UUID roomId,
+        @PathVariable("playerId") UUID playerId,
+        HttpSession httpSession
+    ) {
+        if (!roomManager.roomExists(roomId)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
         Room room = roomManager.getRoom(roomId);
-        if (room == null) {
+
+        if (!room.hasPlayer(playerId)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
-        Player player = room.getPlayer((UUID) httpSession.getAttribute("playerId"));
+        Player player = room.getPlayer(playerId);
         player.setConnected(true);
-        response.addCookie(createReconnectCookie());
         roomManager.verifyRoomHasViableHost(roomId);
+
+        httpSession.setAttribute("roomId", roomId);
+        httpSession.setAttribute("playerId", playerId);
 
         return ResponseEntity.ok(new ReconnectResponse(player, new RoomDTO(room, player.getTeam())));
     }
