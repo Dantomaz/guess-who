@@ -89,7 +89,7 @@ public class RoomController {
     }
 
     @PostMapping("/room/reconnect")
-    public ResponseEntity<ReconnectResponse> reconnect(HttpSession httpSession) {
+    public ResponseEntity<ReconnectResponse> reconnect(HttpSession httpSession, HttpServletResponse response) {
         UUID roomId = (UUID) httpSession.getAttribute("roomId");
         if (roomId == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -102,6 +102,7 @@ public class RoomController {
 
         Player player = room.getPlayer((UUID) httpSession.getAttribute("playerId"));
         player.setConnected(true);
+        response.addCookie(createReconnectCookie());
         roomManager.verifyRoomHasViableHost(roomId);
 
         return ResponseEntity.ok(new ReconnectResponse(player, new RoomDTO(room, player.getTeam())));
