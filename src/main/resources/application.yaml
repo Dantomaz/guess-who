@@ -25,7 +25,7 @@ spring:
     message-size-limit: 10MB
     buffer-size-limit: 10MB
   session:
-    timeout: 7200 # 2h - make session timeout way to long for now, for as long as http and websocket sessions are not properly integrated
+    timeout: 10800 # 3h - make session timeout way to long for now, for as long as http and websocket sessions are not properly integrated
     redis:
       repository-type: indexed # needed to be able to listen for redis session events
   cloud:
