@@ -14,6 +14,7 @@ public class GameStateDTO {
     private final Team currentTurn;
     private final Team winner;
     private final Integer totalNumberOfPlayersVotes;
+    private final List<Activity> activityHistory;
     // Below is team specific state, which stays uninitialized for players without a team
     private List<Card> cards;
     private Integer pickedCardNumber;
@@ -25,6 +26,7 @@ public class GameStateDTO {
         currentTurn = gameState.getCurrentTurn();
         winner = gameState.getWinner();
         totalNumberOfPlayersVotes = gameState.getTotalNumberOfPlayersVotes();
+        activityHistory = gameState.getActivityHistory();
 
         if (Team.NONE.equals(team)) {
             return;

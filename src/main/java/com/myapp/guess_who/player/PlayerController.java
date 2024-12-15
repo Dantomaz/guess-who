@@ -1,5 +1,7 @@
 package com.myapp.guess_who.player;
 
+import com.myapp.guess_who.gameState.GameState;
+import com.myapp.guess_who.gameState.GameStateDTO;
 import com.myapp.guess_who.room.RoomManager;
 import com.myapp.guess_who.team.Team;
 import com.myapp.guess_who.utils.StringPayload;
@@ -42,6 +44,8 @@ public class PlayerController {
         @Payload StringPayload newName
     ) {
         roomManager.changePlayerName(roomId, playerId, newName.payload());
+        broadcastGameStateChangeToAllTeams(roomId);
+
         return roomManager.getRoom(roomId).getPlayers();
     }
 
@@ -69,5 +73,13 @@ public class PlayerController {
         roomManager.removePlayer(roomId, playerId);
         messagingTemplate.convertAndSend("/topic/room/%s/player/%s/disconnect".formatted(roomId, playerId), "kick");
         return roomManager.getRoom(roomId).getPlayers();
+    }
+
+    private void broadcastGameStateChangeToAllTeams(UUID roomId) {
+        GameState gameState = roomManager.getRoom(roomId).getGameState();
+
+        String destination = "/topic/room/%s/gameState/team/%s";
+        messagingTemplate.convertAndSend(destination.formatted(roomId, Team.BLUE), new GameStateDTO(gameState, Team.BLUE));
+        messagingTemplate.convertAndSend(destination.formatted(roomId, Team.RED), new GameStateDTO(gameState, Team.RED));
     }
 }

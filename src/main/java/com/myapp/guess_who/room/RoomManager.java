@@ -95,8 +95,10 @@ public class RoomManager {
     }
 
     public void changePlayerName(UUID roomId, UUID playerId, String newName) {
-        Map<UUID, Player> players = rooms.get(roomId).getPlayers();
+        Room room = rooms.get(roomId);
+        Map<UUID, Player> players = room.getPlayers();
         players.get(playerId).setName(newName);
+        room.getGameState().updatePlayerNameInActivities(playerId, newName);
     }
 
     public void changePlayerTeam(UUID roomId, UUID playerId, Team newTeam) {

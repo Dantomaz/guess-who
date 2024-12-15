@@ -1,8 +1,10 @@
 package com.myapp.guess_who.gameState;
 
+import com.myapp.guess_who.player.Player;
 import com.myapp.guess_who.team.Team;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +23,7 @@ public class GameState {
     private int totalNumberOfPlayersVotes;
     private Team currentTurn;
     private Team winner;
+    private List<Activity> activityHistory = new ArrayList<>();
 
     public void prepareGame(int numberOfCards) {
         initializeTeamStates();
@@ -43,6 +46,7 @@ public class GameState {
 
     public void resetGame() {
         initializeTeamStates();
+        activityHistory = new ArrayList<>();
         gameStatus = GameState.GameStatus.NEW;
         totalNumberOfPlayersVotes = 0;
         currentTurn = null;
@@ -143,6 +147,23 @@ public class GameState {
 
     public Integer getOpponentsCardNumber(Team currentTeam) {
         return teamsState.get(getOpponentsTeam(currentTeam)).getPickedCardNumber();
+    }
+
+    public void saveActivity(Player player) {
+        activityHistory.add(Activity.builder().player(player).type(Activity.Type.END_TURN).build());
+    }
+
+    public void saveActivity(Player player, int cardNumber) {
+        activityHistory.add(Activity.builder().player(player).type(Activity.Type.GUESS_CARD).cardNumber(cardNumber).build());
+    }
+
+    public void updatePlayerNameInActivities(UUID playerId, String newName) {
+        activityHistory.forEach(activity -> {
+            Player currentPlayer = activity.getPlayer();
+            if (playerId.equals(currentPlayer.getId())) {
+                currentPlayer.setName(newName);
+            }
+        });
     }
 
     public enum GameStatus {

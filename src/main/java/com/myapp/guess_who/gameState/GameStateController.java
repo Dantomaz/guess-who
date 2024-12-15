@@ -78,17 +78,21 @@ public class GameStateController {
         broadcastGameStateChangeToTeam(roomId, gameState, toggleCardRequest.team());
     }
 
-    @MessageMapping("/room/{roomId}/endTurn")
-    public void endTurn(@DestinationVariable("roomId") UUID roomId) {
-        GameState gameState = roomManager.getRoom(roomId).getGameState();
+    @MessageMapping("/room/{roomId}/player/{playerId}/endTurn")
+    public void endTurn(@DestinationVariable("roomId") UUID roomId, @DestinationVariable("playerId") UUID playerId) {
+        Room room = roomManager.getRoom(roomId);
+        GameState gameState = room.getGameState();
         gameState.endCurrentTurn();
+        gameState.saveActivity(room.getPlayer(playerId));
         broadcastGameStateChangeToAllTeams(roomId, gameState);
     }
 
-    @MessageMapping("/room/{roomId}/guessCard")
-    public void guessCard(@DestinationVariable("roomId") UUID roomId, int cardNumber) {
-        GameState gameState = roomManager.getRoom(roomId).getGameState();
+    @MessageMapping("/room/{roomId}/player/{playerId}/guessCard")
+    public void guessCard(@DestinationVariable("roomId") UUID roomId, @DestinationVariable("playerId") UUID playerId, int cardNumber) {
+        Room room = roomManager.getRoom(roomId);
+        GameState gameState = room.getGameState();
         gameState.guessCard(cardNumber);
+        gameState.saveActivity(room.getPlayer(playerId), cardNumber);
         broadcastGameStateChangeToAllTeams(roomId, gameState);
     }
 
