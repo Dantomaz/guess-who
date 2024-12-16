@@ -12,7 +12,7 @@ public class StompExceptionHandler {
     @MessageExceptionHandler
     @SendToUser("/queue/error")
     public String handleIllegalArgument(IllegalArgumentException exception) {
-        log.debug(exception.getMessage());
+        log.error(exception.getMessage());
         return exception.getMessage();
     }
 }

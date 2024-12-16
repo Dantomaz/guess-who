@@ -89,6 +89,10 @@ public class PlayerController {
     public Map<UUID, Player> kickPlayer(@DestinationVariable("roomId") UUID roomId, @DestinationVariable("playerId") UUID playerId) {
         roomManager.removePlayer(roomId, playerId);
         messagingTemplate.convertAndSend("/topic/room/%s/player/%s/disconnect".formatted(roomId, playerId), "kick");
+
+        Player host = roomManager.getRoom(roomId).getHost();
+        log.info("room {} - {} kicked {}", roomId, host, roomManager.getRoom(roomId).getPlayer(playerId));
+
         return roomManager.getRoom(roomId).getPlayers();
     }
 

@@ -39,7 +39,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
         @NonNull MethodArgumentNotValidException exception, @NonNull HttpHeaders headers, @NonNull HttpStatusCode status, @NonNull WebRequest request
     ) {
-        log.debug("Invalid http method parameters");
         ProblemDetail problemDetail = exception.getBody();
         Map<String, List<String>> invalidParams = exception.getBindingResult()
             .getAllErrors()
@@ -62,7 +61,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         }
     )
     protected ResponseEntity<Void> handleIllegalArgument(Exception exception, ServletWebRequest request) {
-        log.debug(exception.getMessage());
+        log.error(exception.getMessage());
         return ProblemDetailCreator.getResponseEntity(
             HttpStatus.BAD_REQUEST,
             exception.getMessage(),
@@ -73,7 +72,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({HttpServerErrorException.InternalServerError.class, IOException.class})
     protected ResponseEntity<Void> handleInternalServerError(HttpServerErrorException.InternalServerError exception, ServletWebRequest request) {
-        log.debug(exception.getMessage());
+        log.error(exception.getMessage());
         return ProblemDetailCreator.getResponseEntity(
             HttpStatus.INTERNAL_SERVER_ERROR,
             exception.getMessage(),
@@ -84,7 +83,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({NumberFormatException.class})
     protected ResponseEntity<Void> handleWrongNumberFormat(NumberFormatException exception, ServletWebRequest request) {
-        log.debug(exception.getMessage());
+        log.error(exception.getMessage());
         return ProblemDetailCreator.getResponseEntity(
             HttpStatus.UNPROCESSABLE_ENTITY,
             exception.getMessage(),
@@ -95,7 +94,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({JsonProcessingException.class, JsonParseException.class, JsonGenerationException.class,})
     protected ResponseEntity<Void> handleJsonMapping(Exception jsonException, ServletWebRequest request) {
-        log.debug(jsonException.getMessage());
+        log.error(jsonException.getMessage());
         return ProblemDetailCreator.getResponseEntity(
             HttpStatus.UNPROCESSABLE_ENTITY,
             jsonException.getMessage(),

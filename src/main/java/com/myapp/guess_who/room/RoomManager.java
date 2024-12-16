@@ -53,6 +53,7 @@ public class RoomManager {
     public void closeRoom(UUID roomId) {
         rooms.remove(roomId);
         fileService.deleteCustomImages(roomId);
+        log.info("room {} - room was closed", roomId);
     }
 
     public void addPlayer(UUID roomId, Player player) {

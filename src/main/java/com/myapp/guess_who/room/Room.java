@@ -28,6 +28,10 @@ public class Room {
         return new Room(UUID.randomUUID());
     }
 
+    public Player getHost() {
+        return players.values().stream().filter(Player::isHost).findFirst().orElseThrow();
+    }
+
     public Player getPlayer(UUID playerId) {
         return players.get(playerId);
     }

@@ -43,6 +43,8 @@ public class RoomController {
         }
         httpSession.setAttribute("roomId", room.getId());
 
+        log.info("room {} - {} created a room", room.getId(), host);
+
         return ResponseEntity.ok(new RoomDTO(room, host.getTeam()));
     }
 
@@ -58,15 +60,22 @@ public class RoomController {
         httpSession.setAttribute("roomId", room.getId());
 
         messagingTemplate.convertAndSend("/topic/room/%s/players".formatted(roomId), room.getPlayers());
+
+        log.info("room {} - {} joined the room", roomId, player);
+
         return ResponseEntity.ok(new RoomDTO(room, player.getTeam()));
     }
 
     @DeleteMapping("/room/{roomId}/player/{playerId}")
     public ResponseEntity<Void> leaveRoom(@PathVariable("roomId") UUID roomId, @PathVariable("playerId") UUID playerId) {
         Room room = roomManager.getRoom(roomId);
+        Player player = room.getPlayer(playerId);
         roomManager.removePlayer(roomId, playerId);
 
         messagingTemplate.convertAndSend("/topic/room/%s/players".formatted(roomId), room.getPlayers());
+
+        log.info("room {} - {} left the room", roomId, player);
+
         return ResponseEntity.ok().build();
     }
 
@@ -93,6 +102,8 @@ public class RoomController {
         httpSession.setAttribute("roomId", roomId);
         httpSession.setAttribute("playerId", playerId);
 
+        log.info("room {} - {} reconnected to the room", roomId, player);
+
         return ResponseEntity.ok(new ReconnectResponse(player, new RoomDTO(room, player.getTeam())));
     }
 
@@ -107,6 +118,9 @@ public class RoomController {
         room.setImages(uploadedImages);
 
         messagingTemplate.convertAndSend("/topic/room/%s/images".formatted(roomId), uploadedImages);
+
+        log.debug("room {} - {} uploaded custom images", roomId, room.getHost());
+
         return ResponseEntity.ok(uploadedImages);
     }
 }
