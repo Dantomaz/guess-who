@@ -37,6 +37,8 @@ spring:
         region: ${env_aws_s3_region}
         endpoint: ${env_aws_s3_endpoint}
         path-style-access-enabled: true
+logging:
+  config: classpath:log4j2.yaml
 server:
   port: ${env_application_port}
   servlet:

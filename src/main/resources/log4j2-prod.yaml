@@ -1,9 +1,9 @@
 Configuration:
-  name: default
+  name: prod
   Properties:
     Property:
       name: log_pattern
-      value: "%d{dd-MM-yyyy HH:mm:ss.SSS} %5p --- [%15.15t] %-40.40c{1.} : %m%n%ex"
+      value: "%d{dd-MM-yyyy HH:mm:ss.SSS} %5p - %m%n%ex"
   Appenders:
     Console:
       name: console_appender
@@ -13,7 +13,7 @@ Configuration:
   Loggers:
     Logger:
       - name: com.myapp.guess_who
-        level: debug
+        level: info
         additivity: false
         AppenderRef:
           - ref: console_appender
