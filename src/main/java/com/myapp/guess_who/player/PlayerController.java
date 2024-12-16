@@ -2,6 +2,7 @@ package com.myapp.guess_who.player;
 
 import com.myapp.guess_who.gameState.GameState;
 import com.myapp.guess_who.gameState.GameStateDTO;
+import com.myapp.guess_who.room.Room;
 import com.myapp.guess_who.room.RoomManager;
 import com.myapp.guess_who.team.Team;
 import com.myapp.guess_who.utils.StringPayload;
@@ -58,6 +59,22 @@ public class PlayerController {
     ) {
         roomManager.changePlayerTeam(roomId, playerId, newTeam);
         return roomManager.getRoom(roomId).getPlayers();
+    }
+
+    @MessageMapping("/room/{roomId}/resetTeams")
+    @SendTo("/topic/room/{roomId}/players")
+    public Map<UUID, Player> resetTeams(@DestinationVariable("roomId") UUID roomId) {
+        Room room = roomManager.getRoom(roomId);
+        room.resetTeams();
+        return room.getPlayers();
+    }
+
+    @MessageMapping("/room/{roomId}/randomizeTeams")
+    @SendTo("/topic/room/{roomId}/players")
+    public Map<UUID, Player> randomizeTeams(@DestinationVariable("roomId") UUID roomId) {
+        Room room = roomManager.getRoom(roomId);
+        room.randomizeTeams();
+        return room.getPlayers();
     }
 
     @MessageMapping("/room/{roomId}/player/{playerId}/makeHost")

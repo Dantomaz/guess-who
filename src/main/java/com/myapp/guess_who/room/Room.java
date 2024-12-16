@@ -2,8 +2,10 @@ package com.myapp.guess_who.room;
 
 import com.myapp.guess_who.gameState.GameState;
 import com.myapp.guess_who.player.Player;
+import com.myapp.guess_who.team.Team;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,5 +90,38 @@ public class Room {
         List<Player> playerPoolToChooseFrom = connectedPlayers.isEmpty() ? players.values().stream().toList() : connectedPlayers;
         int randomIndex = new Random().nextInt(playerPoolToChooseFrom.size());
         return playerPoolToChooseFrom.get(randomIndex).getId();
+    }
+
+    public void resetTeams() {
+        players.values().forEach(player -> player.setTeam(Team.NONE));
+    }
+
+    public void randomizeTeams() {
+        // calculate the max players per team (rounding up)
+        final int MAX_PLAYER_COUNT_PER_TEAM = (players.size() + 1) / 2;
+
+        Map<Team, Integer> playerCountPerTeam = new HashMap<>();
+        playerCountPerTeam.put(Team.RED, 0);
+        playerCountPerTeam.put(Team.BLUE, 0);
+
+        // both teams in a list
+        List<Team> availableTeams = new ArrayList<>(playerCountPerTeam.keySet());
+
+        Random random = new Random();
+
+        players.values().forEach(player -> {
+            // randomly select a team
+            int randomIndex = random.nextInt(availableTeams.size());
+            Team randomTeam = availableTeams.get(randomIndex);
+
+            // set player team and update player count
+            player.setTeam(randomTeam);
+            playerCountPerTeam.put(randomTeam, playerCountPerTeam.get(randomTeam) + 1);
+
+            // if team reached max number of players, remove this team from available teams
+            if (playerCountPerTeam.get(randomTeam) >= MAX_PLAYER_COUNT_PER_TEAM) {
+                availableTeams.remove(randomIndex);
+            }
+        });
     }
 }
