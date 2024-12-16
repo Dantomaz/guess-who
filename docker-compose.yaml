@@ -1,6 +1,6 @@
 services:
   app:
-    image: guess-who:0.2
+    image: guess-who:0.3
     build: .
     ports:
       - "8080:8080"
