@@ -2,7 +2,7 @@
 ARG BUILD_HOME=/.
 
 # Use latest gradle image
-FROM gradle:latest AS build
+FROM gradle:jdk21 AS build
 # Use build-time variable
 ARG BUILD_HOME
 # Copy src folder into the container
