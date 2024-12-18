@@ -25,12 +25,12 @@ public class HttpSessionEventListener {
         Session session = event.getSession();
         UUID roomId = session.getAttribute("roomId");
         UUID playerId = session.getAttribute("playerId");
-        Player player = roomManager.getRoom(roomId).getPlayer(playerId);
 
         if (roomId == null || playerId == null || !roomManager.roomExists(roomId)) {
             return;
         }
 
+        Player player = roomManager.getRoom(roomId).getPlayer(playerId);
         roomManager.removePlayer(roomId, playerId);
         messagingTemplate.convertAndSend("/topic/room/%s/player/%s/disconnect".formatted(roomId, playerId), "timeout");
 
