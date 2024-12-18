@@ -19,16 +19,16 @@ public class WebSocketConfig extends AbstractSessionWebSocketMessageBrokerConfig
     private String clientUrl;
 
     @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic", "/queue")
-            .setHeartbeatValue(new long[]{HEARTBEAT_INTERVAL_IN_MS, HEARTBEAT_INTERVAL_IN_MS})
-            .setTaskScheduler(taskScheduler());
-        registry.setApplicationDestinationPrefixes("/app");
+    protected void configureStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/ws").setAllowedOrigins(clientUrl);
     }
 
     @Override
-    protected void configureStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").setAllowedOrigins(clientUrl);
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry.setApplicationDestinationPrefixes("/app");
+        registry.enableSimpleBroker("/topic", "/queue")
+            .setHeartbeatValue(new long[]{HEARTBEAT_INTERVAL_IN_MS, HEARTBEAT_INTERVAL_IN_MS})
+            .setTaskScheduler(taskScheduler());
     }
 
     @Bean
